@@ -1,7 +1,6 @@
-'use strict';
+"use strict";
 
-var BaseAttributeValue = require('*/cartridge/models/search/attributeRefinementValue/base');
-
+var BaseAttributeValue = require("*/cartridge/models/search/attributeRefinementValue/base");
 
 /**
  * @constructor
@@ -12,7 +11,11 @@ var BaseAttributeValue = require('*/cartridge/models/search/attributeRefinementV
  *     definition
  * @param {dw.catalog.ProductSearchRefinementValue} refinementValue - Raw DW refinement value
  */
-function SizeAttributeValue(productSearch, refinementDefinition, refinementValue) {
+function SizeAttributeValue(
+    productSearch,
+    refinementDefinition,
+    refinementValue
+) {
     this.productSearch = productSearch;
     this.refinementDefinition = refinementDefinition;
     this.refinementValue = refinementValue;
@@ -25,7 +28,7 @@ SizeAttributeValue.prototype = Object.create(BaseAttributeValue.prototype);
 SizeAttributeValue.prototype.initialize = function () {
     BaseAttributeValue.prototype.initialize.call(this);
 
-    this.type = 'size';
+    this.type = "size";
     this.displayValue = this.getDisplayValue(this.refinementValue);
     this.selected = this.isSelected(
         this.productSearch,
@@ -57,21 +60,26 @@ SizeAttributeValue.prototype.initialize = function () {
  *     definition
  * @param {dw.catalog.ProductSearchRefinementValue} refinementValue - Raw DW refinement value
  */
-function SizeRefinementValueWrapper(productSearch, refinementDefinition, refinementValue) {
+function SizeRefinementValueWrapper(
+    productSearch,
+    refinementDefinition,
+    refinementValue
+) {
     var value = new SizeAttributeValue(
         productSearch,
         refinementDefinition,
         refinementValue
     );
     var items = [
-        'id',
-        'type',
-        'displayValue',
-        'presentationId',
-        'selected',
-        'selectable',
-        'title',
-        'url'
+        "id",
+        "type",
+        "displayValue",
+        "presentationId",
+        "selected",
+        "selectable",
+        "title",
+        "url",
+        "hitCount",
     ];
     items.forEach(function (item) {
         this[item] = value[item];

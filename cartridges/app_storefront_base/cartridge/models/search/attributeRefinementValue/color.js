@@ -1,7 +1,6 @@
-'use strict';
+"use strict";
 
-var BaseAttributeValue = require('*/cartridge/models/search/attributeRefinementValue/base');
-
+var BaseAttributeValue = require("*/cartridge/models/search/attributeRefinementValue/base");
 
 /**
  * @constructor
@@ -12,7 +11,11 @@ var BaseAttributeValue = require('*/cartridge/models/search/attributeRefinementV
  *     definition
  * @param {dw.catalog.ProductSearchRefinementValue} refinementValue - Raw DW refinement value
  */
-function ColorAttributeValue(productSearch, refinementDefinition, refinementValue) {
+function ColorAttributeValue(
+    productSearch,
+    refinementDefinition,
+    refinementValue
+) {
     this.productSearch = productSearch;
     this.refinementDefinition = refinementDefinition;
     this.refinementValue = refinementValue;
@@ -25,9 +28,9 @@ ColorAttributeValue.prototype = Object.create(BaseAttributeValue.prototype);
 ColorAttributeValue.prototype.initialize = function () {
     BaseAttributeValue.prototype.initialize.call(this);
 
-    this.type = 'color';
+    this.type = "color";
     this.displayValue = this.getDisplayValue(this.refinementValue);
-    this.swatchId = 'swatch-circle-' + this.presentationId;
+    this.swatchId = "swatch-circle-" + this.presentationId;
     this.selected = this.isSelected(
         this.productSearch,
         this.refinementDefinition.attributeID,
@@ -58,22 +61,27 @@ ColorAttributeValue.prototype.initialize = function () {
  *     definition
  * @param {dw.catalog.ProductSearchRefinementValue} refinementValue - Raw DW refinement value
  */
-function ColorRefinementValueWrapper(productSearch, refinementDefinition, refinementValue) {
+function ColorRefinementValueWrapper(
+    productSearch,
+    refinementDefinition,
+    refinementValue
+) {
     var value = new ColorAttributeValue(
         productSearch,
         refinementDefinition,
         refinementValue
     );
     var items = [
-        'id',
-        'type',
-        'displayValue',
-        'presentationId',
-        'selected',
-        'selectable',
-        'swatchId',
-        'title',
-        'url'
+        "id",
+        "type",
+        "displayValue",
+        "presentationId",
+        "selected",
+        "selectable",
+        "swatchId",
+        "title",
+        "url",
+        "hitCount",
     ];
     items.forEach(function (item) {
         this[item] = value[item];

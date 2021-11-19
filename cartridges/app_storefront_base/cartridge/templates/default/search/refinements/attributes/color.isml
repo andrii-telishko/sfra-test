@@ -1,6 +1,6 @@
 <li class="color-attribute ${!refinementValue.selectable ? 'disabled' : ''}">
     <button data-href="${refinementValue.url}">
-        <span class="${refinementValue.swatchId} swatch-circle color-value swatch-mark
+        <iscomment> <span class="${refinementValue.swatchId} swatch-circle color-value swatch-mark
               <isif condition="${refinementValue.selected && refinementValue.selectable}">selected</isif>
               <isif condition="${!refinementValue.selectable}">disabled</isif>"
         >
@@ -8,6 +8,19 @@
         <span id="${refinementValue.swatchId}-assistive" class="sr-only selected-assistive-text">
             ${refinementValue.selected && refinementValue.selectable ? Resource.msg('msg.assistive.selected.text', 'common', null) : ''}
             ${refinementValue.title}
-        </span>
+        </span> </iscomment>
+
+                <span aria-hidden="true">
+                    ${refinementValue.displayValue} (${refinementValue.hitCount})
+                </span>
+                <span class="sr-only selected-assistive-text">
+                    ${refinementValue.selected ? Resource.msg('msg.assistive.selected.text', 'common', null) : ''}
+                    ${refinementValue.title}
+                </span>
     </button>
 </li>
+
+
+
+
+

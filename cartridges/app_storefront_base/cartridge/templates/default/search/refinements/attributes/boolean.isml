@@ -9,7 +9,7 @@
 
         <iscomment>Label</iscomment>
         <span class="<isif condition="${refinementValue.selected && refinementValue.selectable}">selected</isif>" aria-hidden="true">
-            ${refinementValue.displayValue}
+            ${refinementValue.displayValue} (${refinementValue.hitCount})
         </span>
 
         <span class="sr-only selected-assistive-text">

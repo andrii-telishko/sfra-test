@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-var BaseAttributeValue = require('*/cartridge/models/search/attributeRefinementValue/base');
+var BaseAttributeValue = require("*/cartridge/models/search/attributeRefinementValue/base");
 
 /**
  * @constructor
@@ -11,7 +11,11 @@ var BaseAttributeValue = require('*/cartridge/models/search/attributeRefinementV
  *     definition
  * @param {dw.catalog.ProductSearchRefinementValue} refinementValue - Raw DW refinement value
  */
-function PromotionAttributeValue(productSearch, refinementDefinition, refinementValue) {
+function PromotionAttributeValue(
+    productSearch,
+    refinementDefinition,
+    refinementValue
+) {
     this.productSearch = productSearch;
     this.refinementDefinition = refinementDefinition;
     this.refinementValue = refinementValue;
@@ -23,7 +27,7 @@ PromotionAttributeValue.prototype = Object.create(BaseAttributeValue.prototype);
 
 PromotionAttributeValue.prototype.initialize = function () {
     BaseAttributeValue.prototype.initialize.call(this);
-    this.type = 'promotion';
+    this.type = "promotion";
     this.displayValue = this.getDisplayValue(this.refinementValue);
     this.selected = this.isSelected(
         this.productSearch,
@@ -44,23 +48,36 @@ PromotionAttributeValue.prototype.initialize = function () {
     );
 };
 
-PromotionAttributeValue.prototype.getUrl = function (productSearch, actionEndpoint, promotionID, selected, selectable) {
-    var url = '';
+PromotionAttributeValue.prototype.getUrl = function (
+    productSearch,
+    actionEndpoint,
+    promotionID,
+    selected,
+    selectable
+) {
+    var url = "";
 
     if (selected) {
-        url = productSearch.urlRelaxPromotion(actionEndpoint)
-            .relative().toString();
+        url = productSearch
+            .urlRelaxPromotion(actionEndpoint)
+            .relative()
+            .toString();
     } else if (!selectable) {
-        url = '#';
+        url = "#";
     } else {
-        url = productSearch.urlRefinePromotion(actionEndpoint, promotionID)
-            .relative().toString();
+        url = productSearch
+            .urlRefinePromotion(actionEndpoint, promotionID)
+            .relative()
+            .toString();
     }
 
     return url;
 };
 
-PromotionAttributeValue.prototype.isSelected = function (productSearch, promotionID) {
+PromotionAttributeValue.prototype.isSelected = function (
+    productSearch,
+    promotionID
+) {
     return productSearch.isRefinedByPromotion(promotionID);
 };
 
@@ -78,7 +95,8 @@ function PromotionRefinementValueWrapper(
     productSearch,
     refinementDefinition,
     refinementValue,
-    selected) {
+    selected
+) {
     var value = new PromotionAttributeValue(
         productSearch,
         refinementDefinition,
@@ -86,13 +104,14 @@ function PromotionRefinementValueWrapper(
         selected
     );
     var items = [
-        'id',
-        'type',
-        'displayValue',
-        'selected',
-        'selectable',
-        'title',
-        'url'
+        "id",
+        "type",
+        "displayValue",
+        "selected",
+        "selectable",
+        "title",
+        "url",
+        "hitCount",
     ];
     items.forEach(function (item) {
         this[item] = value[item];

@@ -1,8 +1,7 @@
-'use strict';
+"use strict";
 
-var BaseAttributeValue = require('*/cartridge/models/search/attributeRefinementValue/base');
-var Resource = require('dw/web/Resource');
-
+var BaseAttributeValue = require("*/cartridge/models/search/attributeRefinementValue/base");
+var Resource = require("dw/web/Resource");
 
 /**
  * @constructor
@@ -13,7 +12,11 @@ var Resource = require('dw/web/Resource');
  *     definition
  * @param {dw.catalog.ProductSearchRefinementValue} refinementValue - Raw DW refinement value
  */
-function BooleanAttributeValue(productSearch, refinementDefinition, refinementValue) {
+function BooleanAttributeValue(
+    productSearch,
+    refinementDefinition,
+    refinementValue
+) {
     this.productSearch = productSearch;
     this.refinementDefinition = refinementDefinition;
     this.refinementValue = refinementValue;
@@ -26,7 +29,7 @@ BooleanAttributeValue.prototype = Object.create(BaseAttributeValue.prototype);
 BooleanAttributeValue.prototype.initialize = function () {
     BaseAttributeValue.prototype.initialize.call(this);
 
-    this.type = 'boolean';
+    this.type = "boolean";
     this.displayValue = this.getDisplayValue(
         this.refinementDefinition.attributeID,
         this.refinementValue.displayValue
@@ -52,10 +55,13 @@ BooleanAttributeValue.prototype.initialize = function () {
     );
 };
 
-BooleanAttributeValue.prototype.getDisplayValue = function (attributeID, displayValue) {
+BooleanAttributeValue.prototype.getDisplayValue = function (
+    attributeID,
+    displayValue
+) {
     return Resource.msg(
-        ['label.refinement', attributeID, displayValue].join('.'),
-        'search',
+        ["label.refinement", attributeID, displayValue].join("."),
+        "search",
         displayValue
     );
 };
@@ -69,20 +75,25 @@ BooleanAttributeValue.prototype.getDisplayValue = function (attributeID, display
  *     definition
  * @param {dw.catalog.ProductSearchRefinementValue} refinementValue - Raw DW refinement value
  */
-function BooleanRefinementValueWrapper(productSearch, refinementDefinition, refinementValue) {
+function BooleanRefinementValueWrapper(
+    productSearch,
+    refinementDefinition,
+    refinementValue
+) {
     var value = new BooleanAttributeValue(
         productSearch,
         refinementDefinition,
         refinementValue
     );
     var items = [
-        'id',
-        'type',
-        'displayValue',
-        'selected',
-        'selectable',
-        'title',
-        'url'
+        "id",
+        "type",
+        "displayValue",
+        "selected",
+        "selectable",
+        "title",
+        "url",
+        "hitCount",
     ];
     items.forEach(function (item) {
         this[item] = value[item];
