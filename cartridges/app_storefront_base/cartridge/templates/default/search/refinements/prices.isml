@@ -9,7 +9,7 @@
                 </isif>
 
                 <span aria-hidden="true">
-                    ${refinementValue.displayValue}
+                    ${refinementValue.displayValue} (${refinementValue.hitCount})
                 </span>
                 <span class="sr-only selected-assistive-text">
                     ${refinementValue.selected ? Resource.msg('msg.assistive.selected.text', 'common', null) : ''}

@@ -9,7 +9,7 @@
         </isif>
 
         <span aria-hidden="true" class="${refinementValue.swatchId}<isif condition="${refinementValue.selected && refinementValue.selectable}">selected</isif>">
-            ${refinementValue.displayValue}
+            ${refinementValue.displayValue} (${refinementValue.hitCount})
         </span>
 
         <span class="sr-only selected-assistive-text">

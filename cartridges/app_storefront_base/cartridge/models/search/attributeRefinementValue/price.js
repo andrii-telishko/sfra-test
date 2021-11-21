@@ -1,7 +1,6 @@
-'use strict';
+"use strict";
 
-var BaseAttributeValue = require('*/cartridge/models/search/attributeRefinementValue/base');
-
+var BaseAttributeValue = require("*/cartridge/models/search/attributeRefinementValue/base");
 
 /**
  * @constructor
@@ -12,7 +11,11 @@ var BaseAttributeValue = require('*/cartridge/models/search/attributeRefinementV
  *     definition
  * @param {dw.catalog.ProductSearchRefinementValue} refinementValue - Raw DW refinement value
  */
-function PriceAttributeValue(productSearch, refinementDefinition, refinementValue) {
+function PriceAttributeValue(
+    productSearch,
+    refinementDefinition,
+    refinementValue
+) {
     this.productSearch = productSearch;
     this.refinementDefinition = refinementDefinition;
     this.refinementValue = refinementValue;
@@ -25,11 +28,15 @@ PriceAttributeValue.prototype = Object.create(BaseAttributeValue.prototype);
 PriceAttributeValue.prototype.initialize = function () {
     BaseAttributeValue.prototype.initialize.call(this);
 
-    this.type = 'price';
+    this.type = "price";
     this.valueFrom = this.refinementValue.valueFrom;
     this.valueTo = this.refinementValue.valueTo;
     this.displayValue = this.refinementValue.displayValue;
-    this.selected = this.isSelected(this.productSearch, this.valueFrom, this.valueTo);
+    this.selected = this.isSelected(
+        this.productSearch,
+        this.valueFrom,
+        this.valueTo
+    );
     this.url = this.getUrl(
         this.productSearch,
         this.actionEndpoint,
@@ -64,7 +71,10 @@ PriceAttributeValue.prototype.getUrl = function (
 ) {
     return selected
         ? productSearch.urlRelaxPrice(actionEndpoint).relative().toString()
-        : productSearch.urlRefinePrice(actionEndpoint, valueFrom, valueTo).relative().toString();
+        : productSearch
+              .urlRefinePrice(actionEndpoint, valueFrom, valueTo)
+              .relative()
+              .toString();
 };
 
 /**
@@ -75,7 +85,11 @@ PriceAttributeValue.prototype.getUrl = function (
  * @param {number} valueTo - End of price refinement range
  * @return {boolean} - Indicates whether this price refinement value is selected
  */
-PriceAttributeValue.prototype.isSelected = function (productSearch, valueFrom, valueTo) {
+PriceAttributeValue.prototype.isSelected = function (
+    productSearch,
+    valueFrom,
+    valueTo
+) {
     return productSearch.isRefinedByPriceRange(valueFrom, valueTo);
 };
 
@@ -88,18 +102,17 @@ PriceAttributeValue.prototype.isSelected = function (productSearch, valueFrom, v
  *     definition
  * @param {dw.catalog.ProductSearchRefinementValue} refinementValue - Raw DW refinement value
  */
-function PriceRefinementValueWrapper(productSearch, refinementDefinition, refinementValue) {
+function PriceRefinementValueWrapper(
+    productSearch,
+    refinementDefinition,
+    refinementValue
+) {
     var value = new PriceAttributeValue(
         productSearch,
         refinementDefinition,
         refinementValue
     );
-    var items = [
-        'displayValue',
-        'selected',
-        'title',
-        'url'
-    ];
+    var items = ["displayValue", "selected", "title", "url", "hitCount"];
     items.forEach(function (item) {
         this[item] = value[item];
     }, this);
