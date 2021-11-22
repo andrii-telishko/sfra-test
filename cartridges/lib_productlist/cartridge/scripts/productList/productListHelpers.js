@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Retrieve the list of the customer
@@ -44,12 +44,12 @@ function addEventInfo(eventInfo, list) {
     list.setEventCountry(eventInfo.eventCountry);
     list.setEventState(eventInfo.eventState);
     list.setEventCity(eventInfo.eventCity);
-    var dateSplit = eventInfo.eventDate.split('/');
+    var dateSplit = eventInfo.eventDate.split("/");
     var eventDate = new Date(
-            parseInt(dateSplit[2], 10),
-            (parseInt(dateSplit[0], 10) - 1),
-            parseInt(dateSplit[1], 10)
-        );
+        parseInt(dateSplit[2], 10),
+        parseInt(dateSplit[0], 10) - 1,
+        parseInt(dateSplit[1], 10)
+    );
 
     list.setEventDate(new Date(eventDate));
 }
@@ -85,8 +85,8 @@ function addRegistrantInfo(registrant, list, coRegistrant) {
  * @return {dw.customer.ProductList} list - target productList
  */
 function createList(customer, config) {
-    var Transaction = require('dw/system/Transaction');
-    var ProductListMgr = require('dw/customer/ProductListMgr');
+    var Transaction = require("dw/system/Transaction");
+    var ProductListMgr = require("dw/customer/ProductListMgr");
     var list;
 
     if (config.type === 10) {
@@ -105,9 +105,19 @@ function createList(customer, config) {
             if (config.formData.coRegistrant) {
                 addRegistrantInfo(config.formData.coRegistrant, list, true);
             }
-            addShippingAddress(config.formData.preEventAddress, list, true, customer);
+            addShippingAddress(
+                config.formData.preEventAddress,
+                list,
+                true,
+                customer
+            );
             if (config.formData.postEventAddress) {
-                addShippingAddress(config.formData.postEventAddress, list, false, customer);
+                addShippingAddress(
+                    config.formData.postEventAddress,
+                    list,
+                    false,
+                    customer
+                );
             }
         });
     }
@@ -126,14 +136,12 @@ function createList(customer, config) {
  * @return {dw.customer.ProductList} list - target productList
  */
 function getList(customer, config) {
-    var productListMgr = require('dw/customer/ProductListMgr');
+    var productListMgr = require("dw/customer/ProductListMgr");
     var type = config.type;
     var list;
     if (type === 10) {
         var productLists = productListMgr.getProductLists(customer, type);
-        list = productLists.length > 0
-            ? productLists[0]
-            : null;
+        list = productLists.length > 0 ? productLists[0] : null;
     } else if (type === 11) {
         list = productListMgr.getProductList(config.id);
     } else {
@@ -174,12 +182,12 @@ function getCurrentOrNewList(customer, config) {
  * @param {Object} config - configuration object
  */
 function updateWishlistPrivacyCache(customer, req, config) {
-    var collections = require('*/cartridge/scripts/util/collections');
+    var collections = require("*/cartridge/scripts/util/collections");
     var list = getCurrentOrNewList(customer, { type: config.type });
     var listOfIds = collections.map(list.items, function (item) {
         return item.productID;
     });
-    req.session.privacyCache.set('wishlist', listOfIds.toString());
+    req.session.privacyCache.set("wishlist", listOfIds.toString());
 }
 
 /**
@@ -194,9 +202,9 @@ function updateWishlistPrivacyCache(customer, req, config) {
  */
 function removeList(customer, list, config) {
     // will need a check on the current customer before deleting the list
-    var Transaction = require('dw/system/Transaction');
+    var Transaction = require("dw/system/Transaction");
     if (customer || config.mergeList) {
-        var ProductListMgr = require('dw/customer/ProductListMgr');
+        var ProductListMgr = require("dw/customer/ProductListMgr");
         Transaction.wrap(function () {
             ProductListMgr.removeProductList(list);
         });
@@ -222,12 +230,17 @@ function itemExists(list, pid, config) {
             found = item;
         }
     });
-    if (found && found.productOptionModel && config.optionId && config.optionValue) {
+    if (
+        found &&
+        found.productOptionModel &&
+        config.optionId &&
+        config.optionValue
+    ) {
         var optionModel = found.productOptionModel;
         var option = optionModel.getOption(config.optionId);
         var optionValue = optionModel.getSelectedOptionValue(option);
         if (optionValue.ID !== config.optionValue) {
-            var Transaction = require('dw/system/Transaction');
+            var Transaction = require("dw/system/Transaction");
             try {
                 Transaction.wrap(function () {
                     list.removeItem(found);
@@ -253,18 +266,23 @@ function itemExists(list, pid, config) {
  * @return {boolean} - boolean based on if the product was added to the wishlist
  */
 function addItem(list, pid, config) {
-    var Transaction = require('dw/system/Transaction');
+    var Transaction = require("dw/system/Transaction");
+    var Site = require("dw/system/Site");
 
-    if (!list) { return false; }
+    if (!list) {
+        return false;
+    }
 
     var itemExist = itemExists(list, pid, config);
 
     if (!itemExist) {
-        var ProductMgr = require('dw/catalog/ProductMgr');
+        var ProductMgr = require("dw/catalog/ProductMgr");
 
         var apiProduct = ProductMgr.getProduct(pid);
 
-        if (apiProduct.variationGroup) { return false; }
+        if (apiProduct.variationGroup) {
+            return false;
+        }
 
         if (apiProduct && list && config.qty) {
             try {
@@ -274,7 +292,10 @@ function addItem(list, pid, config) {
                     if (apiProduct.optionProduct) {
                         var optionModel = apiProduct.getOptionModel();
                         var option = optionModel.getOption(config.optionId);
-                        var optionValue = optionModel.getOptionValue(option, config.optionValue);
+                        var optionValue = optionModel.getOptionValue(
+                            option,
+                            config.optionValue
+                        );
 
                         optionModel.setSelectedOptionValue(option, optionValue);
                         productlistItem.setProductOptionModel(optionModel);
@@ -285,6 +306,15 @@ function addItem(list, pid, config) {
                     }
 
                     productlistItem.setQuantityValue(config.qty);
+
+                    var sitePref = Site.getCurrent().getPreferences();
+                    var timeToLiveInWishlist = sitePref.getCustom().expareDay;
+                    var expiryDate = new Date();
+                    expiryDate.setDate(
+                        expiryDate.getDate() + timeToLiveInWishlist
+                    );
+
+                    productlistItem.custom.wishlistExpirationDate = expiryDate;
                 });
             } catch (e) {
                 return false;
@@ -292,7 +322,11 @@ function addItem(list, pid, config) {
         }
 
         if (config.type === 10) {
-            updateWishlistPrivacyCache(config.req.currentCustomer.raw, config.req, config);
+            updateWishlistPrivacyCache(
+                config.req.currentCustomer.raw,
+                config.req,
+                config
+            );
         }
 
         return true;
@@ -330,7 +364,7 @@ function mergelists(listTo, listFrom, req, configObj) {
                 optionValue: null,
                 qty: item.quantityValue,
                 req: req,
-                type: configObj.type
+                type: configObj.type,
             };
             if (item.product.optionProduct) {
                 var optionModel = item.product.getOptionModel();
@@ -369,19 +403,23 @@ function mergelists(listTo, listFrom, req, configObj) {
  * @return {Object} result - result object with {dw.customer.ProductList} as one of the properties or result{} with error msg
  */
 function removeItem(customer, pid, config) {
-    var Resource = require('dw/web/Resource');
+    var Resource = require("dw/web/Resource");
     var list = getCurrentOrNewList(customer, config);
     var item = itemExists(list, pid, config);
     var result = {};
     if (item) {
-        var Transaction = require('dw/system/Transaction');
+        var Transaction = require("dw/system/Transaction");
         try {
             Transaction.wrap(function () {
                 list.removeItem(item);
             });
         } catch (e) {
             result.error = true;
-            result.msg = Resource.msg('remove.item.failure.msg', 'productlist', null);
+            result.msg = Resource.msg(
+                "remove.item.failure.msg",
+                "productlist",
+                null
+            );
             result.prodList = null;
             return result;
         }
@@ -402,7 +440,7 @@ function removeItem(customer, pid, config) {
  * @return {dw.customer.ProductListItem} list - target productListItem
  */
 function getItemFromList(list, pid) {
-    var collections = require('*/cartridge/scripts/util/collections');
+    var collections = require("*/cartridge/scripts/util/collections");
     var listItem = collections.find(list.items, function (item) {
         return item.productID === pid;
     });
@@ -418,20 +456,28 @@ function getItemFromList(list, pid) {
  */
 function toggleStatus(customer, itemID, listID) {
     var result = {};
-    var Transaction = require('dw/system/Transaction');
-    var ProductListMgr = require('dw/customer/ProductListMgr');
-    var Resource = require('dw/web/Resource');
+    var Transaction = require("dw/system/Transaction");
+    var ProductListMgr = require("dw/customer/ProductListMgr");
+    var Resource = require("dw/web/Resource");
     var apiList;
     if (!customer || !listID) {
         result.error = true;
-        result.msg = Resource.msg('list.togglepublic.error.msg', 'productlist', null);
+        result.msg = Resource.msg(
+            "list.togglepublic.error.msg",
+            "productlist",
+            null
+        );
         return result;
     }
 
     apiList = ProductListMgr.getProductList(listID);
     if (apiList && apiList.owner.ID !== customer.ID) {
         result.error = true;
-        result.msg = Resource.msg('list.togglepublic.error.msg', 'productlist', null);
+        result.msg = Resource.msg(
+            "list.togglepublic.error.msg",
+            "productlist",
+            null
+        );
         return result;
     }
 
@@ -442,11 +488,19 @@ function toggleStatus(customer, itemID, listID) {
             });
         } catch (e) {
             result.error = true;
-            result.msg = Resource.msg('list.togglepublic.error.msg', 'productlist', null);
+            result.msg = Resource.msg(
+                "list.togglepublic.error.msg",
+                "productlist",
+                null
+            );
             return result;
         }
         result.success = true;
-        result.msg = Resource.msg('list.togglepublic.success.msg', 'productlist', null);
+        result.msg = Resource.msg(
+            "list.togglepublic.success.msg",
+            "productlist",
+            null
+        );
     }
 
     if (itemID && apiList) {
@@ -454,7 +508,11 @@ function toggleStatus(customer, itemID, listID) {
 
         if (item && item.product.master) {
             result.error = true;
-            result.msg = Resource.msg('list.togglepublic.main.error.msg', 'productlist', null);
+            result.msg = Resource.msg(
+                "list.togglepublic.main.error.msg",
+                "productlist",
+                null
+            );
             return result;
         }
 
@@ -464,11 +522,19 @@ function toggleStatus(customer, itemID, listID) {
             });
         } catch (e) {
             result.error = true;
-            result.msg = Resource.msg('list.togglepublic.error.msg', 'productlist', null);
+            result.msg = Resource.msg(
+                "list.togglepublic.error.msg",
+                "productlist",
+                null
+            );
             return result;
         }
         result.success = true;
-        result.msg = Resource.msg('listitem.togglepublic.success.msg', 'productlist', null);
+        result.msg = Resource.msg(
+            "listitem.togglepublic.success.msg",
+            "productlist",
+            null
+        );
     }
     return result;
 }
@@ -484,5 +550,5 @@ module.exports = {
     mergelists: mergelists,
     getItemFromList: getItemFromList,
     toggleStatus: toggleStatus,
-    getCurrentOrNewList: getCurrentOrNewList
+    getCurrentOrNewList: getCurrentOrNewList,
 };
