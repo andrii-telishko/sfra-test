@@ -34,7 +34,7 @@
                                 </a>
                             </div>
                         </isif>
-                        
+                        <p>${item.wishlistDaysToExpire.toFixed()} days left</p>
                     </div>
                 </div>
             </div>

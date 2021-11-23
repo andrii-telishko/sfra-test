@@ -267,7 +267,7 @@ function itemExists(list, pid, config) {
  */
 function addItem(list, pid, config) {
     var Transaction = require("dw/system/Transaction");
-    var Site = require("dw/system/Site");
+    // var Site = require("dw/system/Site");
 
     if (!list) {
         return false;
@@ -306,15 +306,6 @@ function addItem(list, pid, config) {
                     }
 
                     productlistItem.setQuantityValue(config.qty);
-
-                    var sitePref = Site.getCurrent().getPreferences();
-                    var timeToLiveInWishlist = sitePref.getCustom().expareDay;
-                    var expiryDate = new Date();
-                    expiryDate.setDate(
-                        expiryDate.getDate() + timeToLiveInWishlist
-                    );
-
-                    productlistItem.custom.wishlistExpirationDate = expiryDate;
                 });
             } catch (e) {
                 return false;

@@ -1,16 +1,56 @@
-"use strict";
-var ImageModel = require("*/cartridge/models/product/productImages");
-var priceFactory = require("*/cartridge/scripts/factories/price");
+var base = module.superModule;
+
 var PromotionMgr = require("dw/campaign/PromotionMgr");
+var ImageModel = require("*/cartridge/models/product/productImages");
 var availability = require("*/cartridge/models/product/decorators/availability");
 var readyToOrder = require("*/cartridge/models/product/decorators/readyToOrder");
 var variationAttributes = require("*/cartridge/models/product/decorators/variationAttributes");
+var priceFactory = require("*/cartridge/scripts/factories/price");
 var preferences = require("*/cartridge/config/preferences");
-/**
- * returns an array of listItemobjects bundled into an array
- * @param {dw.customer.ProductListItem} listItem - productlist Item
- * @returns {Array} an array of listItms
- */
+
+// base.createProductListItemObject = function (productListItemObject) {
+//     base.createProductListItemObject.call(this, productListItemObject);
+
+//     var wishlistExpirationDate =
+//         productListItemObject.custom.wishlistExpirationDate || new Date();
+
+//     result.wishlistExpirationDate = wishlistExpirationDate;
+//     result.wishlistDaysToExpire = Math.ceil(
+//         (wishlistExpirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+//     );
+// };
+
+function getOptions(listItem) {
+    var options = listItem.productOptionModel ? [] : false;
+    if (options) {
+        listItem.productOptionModel.options
+            .toArray()
+            .forEach(function (option) {
+                var selectedOption =
+                    listItem.productOptionModel.getSelectedOptionValue(option);
+                var result = {
+                    displayName: option.displayName,
+                    displayValue: selectedOption.displayValue,
+                    optionId: option.ID,
+                    selectedValueId: selectedOption.ID,
+                };
+                options.push(result);
+            });
+    }
+    return options;
+}
+
+function getMaxOrderQty(productListItemObject) {
+    var DEFAULT_MAX_ORDER_QUANTITY = preferences.maxOrderQty || 10;
+    var availableToSell;
+    if (productListItemObject.product.availabilityModel.inventoryRecord) {
+        availableToSell =
+            productListItemObject.product.availabilityModel.inventoryRecord.ATS
+                .value;
+    }
+    return Math.min(availableToSell, DEFAULT_MAX_ORDER_QUANTITY);
+}
+
 function getBundledListItems(listItem) {
     var bundledItems = [];
     listItem.product.bundledProducts.toArray().forEach(function (bundledItem) {
@@ -33,36 +73,6 @@ function getBundledListItems(listItem) {
     return bundledItems || [];
 }
 
-/**
- * returns an array of options of a listItem
- * @param {dw.customer.ProductListItem} listItem - productlist Item
- * @returns {Array} an array of listItms options
- */
-function getOptions(listItem) {
-    var options = listItem.productOptionModel ? [] : false;
-    if (options) {
-        listItem.productOptionModel.options
-            .toArray()
-            .forEach(function (option) {
-                var selectedOption =
-                    listItem.productOptionModel.getSelectedOptionValue(option);
-                var result = {
-                    displayName: option.displayName,
-                    displayValue: selectedOption.displayValue,
-                    optionId: option.ID,
-                    selectedValueId: selectedOption.ID,
-                };
-                options.push(result);
-            });
-    }
-    return options;
-}
-
-/**
- * returns an array of selected options that can be passed into cart
- * @param {Object[]} options - Array of options for a given product returned from getOptions function
- * @return {Object[]} an array of selected options
- */
 function getSelectedOptions(options) {
     if (options) {
         return options.map(function (option) {
@@ -75,28 +85,6 @@ function getSelectedOptions(options) {
     return null;
 }
 
-/**
- * Restrict the qty select drop down on wish list product card page to a minimum of total instock qty or default value
- * returns max orderable qty for item on a wish list
- * @param {dw.customer.ProductListItem} productListItemObject - Item in a product list
- * @returns {number} quantity - Number of max orderable items for this product- Default value is 10
- */
-function getMaxOrderQty(productListItemObject) {
-    var DEFAULT_MAX_ORDER_QUANTITY = preferences.maxOrderQty || 10;
-    var availableToSell;
-    if (productListItemObject.product.availabilityModel.inventoryRecord) {
-        availableToSell =
-            productListItemObject.product.availabilityModel.inventoryRecord.ATS
-                .value;
-    }
-    return Math.min(availableToSell, DEFAULT_MAX_ORDER_QUANTITY);
-}
-
-/**
- * creates a plain object that contains product list item information
- * @param {dw.customer.ProductListItem} productListItemObject - productlist Item
- * @returns {Object} an object that contains information about the users address
- */
 function createProductListItemObject(productListItemObject) {
     var result = {};
     var promotions;
@@ -138,6 +126,15 @@ function createProductListItemObject(productListItemObject) {
             selectedOptions: getSelectedOptions(options),
         };
 
+        var wishlistExpirationDate =
+            productListItemObject.custom.wishlistExpirationDate || new Date();
+
+        result.wishlistExpirationDate = wishlistExpirationDate;
+        result.wishlistDaysToExpire = Math.ceil(
+            (wishlistExpirationDate.getTime() - Date.now()) /
+                (1000 * 60 * 60 * 24)
+        );
+
         readyToOrder(result, productListItemObject.product.variationModel);
         availability(
             result,
@@ -161,13 +158,8 @@ function createProductListItemObject(productListItemObject) {
     return result;
 }
 
-/**
- * Address class that represents an productListItem
- * @param {dw.customer.ProductListItem} productListItemObject - Item in a product list
- * @constructor
- */
-function productListItem(productListItemObject) {
+base = function productListItem(productListItemObject) {
     this.productListItem = createProductListItemObject(productListItemObject);
-}
+};
 
-module.exports = productListItem;
+module.exports = base;
