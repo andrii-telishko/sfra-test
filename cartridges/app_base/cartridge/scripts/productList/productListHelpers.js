@@ -1,3 +1,5 @@
+"use strict";
+
 var base = module.superModule;
 
 // base.addItem = function (list, pid, config) {

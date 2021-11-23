@@ -1,3 +1,5 @@
+"use strict";
+
 var base = module.superModule;
 
 var PromotionMgr = require("dw/campaign/PromotionMgr");
