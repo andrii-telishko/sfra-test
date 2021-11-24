@@ -26,6 +26,45 @@ function addItem(list, pid, config) {
     return false;
 }
 
+function removeExpiredWishlistItem(customer, config) {
+    var list = base.getCurrentOrNewList(customer, config);
+
+    if (list.type !== 10) {
+        return;
+    }
+
+    var Transaction = require("dw/system/Transaction");
+
+    try {
+        Transaction.wrap(function () {
+            list.items.toArray().forEach(function (item) {
+                var wishlistDaysToExpire = Math.ceil(
+                    (item.custom.wishlistExpirationDate.getTime() -
+                        Date.now()) /
+                        (1000 * 60 * 60 * 24)
+                );
+                var stop = "";
+                if (wishlistDaysToExpire <= 0) {
+                    list.removeItem(item);
+                }
+            });
+        });
+    } catch (error) {
+        return;
+    }
+}
+
+function getList(customer, config) {
+    var list = base.getList(customer, config);
+
+    if (list) {
+        removeExpiredWishlistItem(customer, config);
+    }
+
+    return list;
+}
+
 module.exports = assign(base, {
     addItem: addItem,
+    getList: getList,
 });
