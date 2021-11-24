@@ -267,7 +267,6 @@ function itemExists(list, pid, config) {
  */
 function addItem(list, pid, config) {
     var Transaction = require("dw/system/Transaction");
-    // var Site = require("dw/system/Site");
 
     if (!list) {
         return false;

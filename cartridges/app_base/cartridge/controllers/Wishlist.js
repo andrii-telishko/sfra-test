@@ -65,39 +65,22 @@ server.append(
             pageNumber: 1,
         }).productList;
 
-        wishlistModel.items = wishlistModel.items.filter(function (item) {
-            if (item.wishlistDaysToExpire !== 0) {
-                return item;
+        var filteredWishlist = [];
+
+        wishlistModel.items.forEach(function (item) {
+            if (item.wishlistDaysToExpire === 0) {
+                productListHelper.removeItem(req.currentCustomer.raw, item.id, {
+                    type: 10,
+                });
+            } else {
+                filteredWishlist.push(item);
             }
         });
-        // var filteredWishList = [];
 
-        // wishlistModel.items.forEach(function (item) {
-        //     if (item.wishlistDaysToExpire !== 0) {
-        //         filteredWishList.push(item);
-        //     }
-        // });
+        wishlistModel.items = filteredWishlist;
 
-        // wishlistModel.items = filteredWishList;
+        res.setViewData({ wishlist: wishlistModel });
 
-        res.render("/wishlist/wishlistLanding", {
-            wishlist: wishlistModel,
-            navTabValue: navTabValue || "login",
-            rememberMe: rememberMe,
-            userName: userName,
-            actionUrl: actionUrl,
-            actionUrls: {
-                updateQuantityUrl: "",
-            },
-            profileForm: profileForm,
-            breadcrumbs: breadcrumbs,
-            oAuthReentryEndpoint: 1,
-            loggedIn: loggedIn,
-            firstName: firstName,
-            socialLinks: loggedIn,
-            publicOption: loggedIn,
-            createAccountUrl: createAccountUrl,
-        });
         next();
     }
 );
