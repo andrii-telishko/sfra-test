@@ -1,7 +1,7 @@
 <isif condition="${pdict.wishlist.items.length > 0}">
     <!---product cards--->
     <div class="wishlistItemCards" data-error-msg="${Resource.msg('wishlist.remove.error','wishlist',null)}">
-        <p>${pdict.wishlist.items.length.toFixed()} product(s)</p>
+        <p>${pdict.wishlist.length} product(s)</p>
         <isloop items="${pdict.wishlist.items}" var="item">
             <isif condition=${(pdict.wishlist.publicView && item.publicItem) || (!pdict.wishlist.publicView)}>
                 <isif condition="${!!item.bundle}">

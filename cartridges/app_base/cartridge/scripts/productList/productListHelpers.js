@@ -43,7 +43,6 @@ function removeExpiredWishlistItem(customer, config) {
                         Date.now()) /
                         (1000 * 60 * 60 * 24)
                 );
-                var stop = "";
                 if (wishlistDaysToExpire <= 0) {
                     list.removeItem(item);
                 }
