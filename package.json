@@ -128,6 +128,7 @@
   },
   "paths": {
     "base": "./cartridges/app_storefront_base",
-    "wishlist": "./cartridges/plugin_wishlists"
+    "wishlist": "./cartridges/plugin_wishlists",
+    "giftregistry": "./cartridges/plugin_giftregistry"
   }
 }
