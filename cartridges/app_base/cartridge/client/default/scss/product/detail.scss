@@ -4,6 +4,7 @@
 @import "../utilities/shapes";
 @import "../utilities/responsiveUtils";
 @import "../utilities/swatch";
+@import "../giftRegistry/addProductToRegistry";
 
 .product-detail .attributes .swatch-circle {
     // $white will be replaced by color image background in ISML
@@ -33,7 +34,7 @@ label.color ~ a:hover {
         .title {
             font-size: 1.5rem;
             margin-bottom: 0;
-            font-family: 'Dosis', sans-serif;
+            font-family: "Dosis", sans-serif;
         }
 
         > div:last-child {
@@ -42,14 +43,12 @@ label.color ~ a:hover {
     }
 
     .description {
-
         @include media-breakpoint-up(sm) {
             margin-bottom: 2em;
         }
     }
 
     .content {
-
         @include media-breakpoint-only(xs) {
             margin-top: 1em;
         }
@@ -102,7 +101,6 @@ label.availability {
 }
 
 .product-number-rating .ratings {
-
     @include media-breakpoint-up(sm) {
         margin-top: 0.625em;
     }
@@ -187,7 +185,6 @@ label.availability {
 }
 
 .attributes {
-
     @include media-breakpoint-up(md) {
         padding-left: 2.5rem;
         padding-right: 2.5rem;
@@ -195,7 +192,6 @@ label.availability {
 }
 
 .product-grid {
-
     @include media-breakpoint-down(xs) {
         padding-top: 0.938em;
 

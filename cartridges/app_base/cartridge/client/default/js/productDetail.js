@@ -1,11 +1,9 @@
 "use strict";
 
-var $ = require("jquery");
-
-var processInclude = require("base/util");
+var processInclude = require("./util");
 
 $(document).ready(function () {
-    processInclude(require("wishlist/product/details"));
-    processInclude(require("wishlist/product/wishlist"));
-    processInclude(require("giftregistry/product/giftRegistry"));
+    processInclude(require("./product/detail"));
+    processInclude(require("./product/wishlist"));
+    processInclude(require("./product/giftRegistry"));
 });

@@ -2,6 +2,7 @@
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/mixins/breakpoints";
 @import "productCard";
+@import "giftIcon";
 
 .minicart {
     position: relative;
@@ -98,14 +99,12 @@
 }
 
 .hide-link-med {
-
     @include media-breakpoint-only(sm) {
         display: none;
     }
 }
 
 .hide-no-link {
-
     @include media-breakpoint-up(md) {
         display: none;
     }

@@ -2,6 +2,8 @@
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/mixins/breakpoints";
 @import "../components/formFields";
+@import "../wishlist/dashboard";
+@import "../giftRegistry/dashboard";
 
 .account-image {
     background-image: url(../../images/account.jpg);
