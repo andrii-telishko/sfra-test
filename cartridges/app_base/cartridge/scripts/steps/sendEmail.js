@@ -14,26 +14,39 @@ function sendEmail() {
         var subscription = subscriptions.next();
 
         Transaction.wrap(function () {
-            var subscriptionData = {
-                email: subscription.custom.email,
-                productId: subscription.custom.ProductId,
-            };
+            var productsArr = subscription.custom.ProductId.map(function (
+                productId
+            ) {
+                return productId;
+            });
 
-            var product = ProductMgr.getProduct(subscriptionData.productId);
+            var productsOutOfStock = productsArr.filter(function (productId) {
+                var product = ProductMgr.getProduct(productId);
+                var productOutOfStock;
 
-            if (!product.availabilityModel.inStock) return;
+                if (product.availabilityModel.inStock) {
+                    var emailObj = {
+                        to: subscription.custom.email,
+                        subject: "Product in Stock",
+                        from: Site.current.getCustomPreferenceValue(
+                            "customerServiceEmail"
+                        ),
+                    };
 
-            var emailObj = {
-                to: subscriptionData.email,
-                subject: "Product in Stock",
-                from: Site.current.getCustomPreferenceValue(
-                    "customerServiceEmail"
-                ),
-            };
+                    emailHelpers.send(emailObj, "emailText.isml", {});
+                } else {
+                    productOutOfStock = productId;
+                }
+                return productOutOfStock;
+            });
 
-            CustomObjectMgr.remove(subscription);
+            var stop = "";
 
-            emailHelpers.send(emailObj, "emailText.isml", {});
+            if (productsOutOfStock.length === 0) {
+                CustomObjectMgr.remove(subscription);
+            } else {
+                subscription.custom.ProductId = productsOutOfStock;
+            }
         });
     }
 }

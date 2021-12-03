@@ -22,12 +22,26 @@ server.post("Notify", server.middleware.https, function (req, res, next) {
     var email = NotifyForm.email.value;
     var productId = NotifyForm.productId.value;
 
+    var customObj = CustomObjectMgr.getCustomObject(
+        "NotifySubscription",
+        email
+    );
+
     Transaction.wrap(function () {
-        var customObj = CustomObjectMgr.createCustomObject(
-            "NotifySubscription",
-            email
-        );
-        customObj.custom.ProductId = productId;
+        if (!customObj) {
+            var newCustomObj = CustomObjectMgr.createCustomObject(
+                "NotifySubscription",
+                email
+            );
+            newCustomObj.custom.ProductId = [productId];
+        } else {
+            var products = customObj.custom.ProductId.map(function (productId) {
+                return productId;
+            });
+
+            var productsSet = products.concat(productId);
+            customObj.custom.ProductId = productsSet;
+        }
     });
 
     res.render("postFormTemplate");
