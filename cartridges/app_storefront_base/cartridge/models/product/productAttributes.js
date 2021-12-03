@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-var collections = require('*/cartridge/scripts/util/collections');
-var urlHelper = require('*/cartridge/scripts/helpers/urlHelpers');
-var ImageModel = require('*/cartridge/models/product/productImages');
+var collections = require("*/cartridge/scripts/util/collections");
+var urlHelper = require("*/cartridge/scripts/helpers/urlHelpers");
+var ImageModel = require("*/cartridge/models/product/productImages");
 
 /**
  * Determines whether a product attribute has image swatches.  Currently, the only attribute that
@@ -11,7 +11,7 @@ var ImageModel = require('*/cartridge/models/product/productImages');
  * @returns {boolean} flag that specifies if the current attribute should be displayed as a swatch
  */
 function isSwatchable(dwAttributeId) {
-    var imageableAttrs = ['color'];
+    var imageableAttrs = ["color"];
     return imageableAttrs.indexOf(dwAttributeId) > -1;
 }
 
@@ -35,11 +35,12 @@ function getAllAttrValues(
     quantity
 ) {
     var attrValues = variationModel.getAllValues(attr);
-    var actionEndpoint = 'Product-' + endPoint;
+    var actionEndpoint = "Product-" + endPoint;
 
     return collections.map(attrValues, function (value) {
-        var isSelected = (selectedValue && selectedValue.equals(value)) || false;
-        var valueUrl = '';
+        var isSelected =
+            (selectedValue && selectedValue.equals(value)) || false;
+        var valueUrl = "";
 
         var processedAttr = {
             id: value.ID,
@@ -47,19 +48,32 @@ function getAllAttrValues(
             displayValue: value.displayValue,
             value: value.value,
             selected: isSelected,
-            selectable: variationModel.hasOrderableVariants(attr, value)
+            selectable: variationModel.hasOrderableVariants(attr, value),
         };
 
         if (processedAttr.selectable) {
-            valueUrl = (isSelected && endPoint !== 'Show')
-                ? variationModel.urlUnselectVariationValue(actionEndpoint, attr)
-                : variationModel.urlSelectVariationValue(actionEndpoint, attr, value);
-            processedAttr.url = urlHelper.appendQueryParams(valueUrl, [selectedOptionsQueryParams,
-                'quantity=' + quantity]);
+            valueUrl =
+                isSelected && endPoint !== "Show"
+                    ? variationModel.urlUnselectVariationValue(
+                          actionEndpoint,
+                          attr
+                      )
+                    : variationModel.urlSelectVariationValue(
+                          actionEndpoint,
+                          attr,
+                          value
+                      );
+            processedAttr.url = urlHelper.appendQueryParams(valueUrl, [
+                selectedOptionsQueryParams,
+                "quantity=" + quantity,
+            ]);
         }
 
         if (isSwatchable(attr.attributeID)) {
-            processedAttr.images = new ImageModel(value, { types: ['swatch'], quantity: 'all' });
+            processedAttr.images = new ImageModel(value, {
+                types: ["swatch"],
+                quantity: "all",
+            });
         }
 
         return processedAttr;
@@ -87,7 +101,10 @@ function getAttrResetUrl(values, attrID) {
             }
 
             if (value.selectable) {
-                urlReturned = value.url.replace(attrID + '=' + value.value, attrID + '=');
+                urlReturned = value.url.replace(
+                    attrID + "=" + value.value,
+                    attrID + "="
+                );
                 break;
             }
         }
@@ -115,33 +132,52 @@ function getAttrResetUrl(values, attrID) {
  * @param {string} selectedOptionsQueryParams - Selected options query params
  * @param {string} quantity - Quantity selected
  */
-function VariationAttributesModel(variationModel, attrConfig, selectedOptionsQueryParams, quantity) {
+function VariationAttributesModel(
+    variationModel,
+    attrConfig,
+    selectedOptionsQueryParams,
+    quantity
+) {
     var allAttributes = variationModel.productVariationAttributes;
     var result = [];
     collections.forEach(allAttributes, function (attr) {
         var selectedValue = variationModel.getSelectedValue(attr);
-        var values = getAllAttrValues(variationModel, selectedValue, attr, attrConfig.endPoint,
-            selectedOptionsQueryParams, quantity);
+        var values = getAllAttrValues(
+            variationModel,
+            selectedValue,
+            attr,
+            attrConfig.endPoint,
+            selectedOptionsQueryParams,
+            quantity
+        );
         var resetUrl = getAttrResetUrl(values, attr.ID);
 
-        if ((Array.isArray(attrConfig.attributes)
-            && attrConfig.attributes.indexOf(attr.attributeID) > -1)
-            || attrConfig.attributes === '*') {
+        if (
+            (Array.isArray(attrConfig.attributes) &&
+                attrConfig.attributes.indexOf(attr.attributeID) > -1) ||
+            attrConfig.attributes === "*"
+        ) {
             result.push({
                 attributeId: attr.attributeID,
                 displayName: attr.displayName,
                 id: attr.ID,
                 swatchable: isSwatchable(attr.attributeID),
-                displayValue: selectedValue && selectedValue.displayValue ? selectedValue.displayValue : '',
+                displayValue:
+                    selectedValue && selectedValue.displayValue
+                        ? selectedValue.displayValue
+                        : "",
                 values: values,
-                resetUrl: resetUrl
+                resetUrl: resetUrl,
             });
-        } else if (attrConfig.attributes === 'selected') {
+        } else if (attrConfig.attributes === "selected") {
             result.push({
                 displayName: attr.displayName,
-                displayValue: selectedValue && selectedValue.displayValue ? selectedValue.displayValue : '',
+                displayValue:
+                    selectedValue && selectedValue.displayValue
+                        ? selectedValue.displayValue
+                        : "",
                 attributeId: attr.attributeID,
-                id: attr.ID
+                id: attr.ID,
             });
         }
     });

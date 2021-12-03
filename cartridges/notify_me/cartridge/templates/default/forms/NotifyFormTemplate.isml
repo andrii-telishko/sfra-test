@@ -1,0 +1,19 @@
+
+<form action="${pdict.actionUrl}" class="notify-submit" method="POST" name="login-form">
+    <div class="form-group required">
+        <label class="form-control-label" for="notify-form-email">
+            ${Resource.msg('label.input.login.email', 'login', null)}
+        </label>
+        <input type="email" id="notify-form-email" required aria-required="true" class="form-control required" aria-describedby="form-email-error"  <isprint value="${pdict.NotifyForm.email.attributes}" encoding="off" /> >
+        <div class="invalid-feedback" id="form-email-error"></div>
+    </div>
+    <div class="form-group required">
+        <label class="form-control-label" for="notify-form-id">
+               ProductId
+        </label>
+        <input type="text" id="notify-form-id" required aria-required="true" class="form-control" aria-describedby="form-password-error" <isprint value="${pdict.NotifyForm.productId.attributes}" encoding="off" />>
+        <div class="invalid-feedback" id="form-password-error"></div>
+    </div>
+
+    <button type="submit" class="btn btn-block btn-primary">Subscribe</button>
+</form>

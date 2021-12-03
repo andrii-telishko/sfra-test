@@ -45,8 +45,11 @@
                 <option value="${attrValue.url}" data-attr-value="${attrValue.value}"
                     ${!attrValue.selectable ? 'disabled' : ''}
                     ${attrValue.selected ? 'selected' : ''}
+                    data-notify = "${Resource.msg('label.select', 'common', null)}"
+                    data-display = "${attrValue.displayValue}"
                 >
-                    ${attrValue.displayValue}
+                     ${attrValue.displayValue}
+                
                 </option>
             </isloop>
         </select>

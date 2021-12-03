@@ -129,6 +129,7 @@
   "paths": {
     "base": "./cartridges/app_storefront_base",
     "wishlist": "./cartridges/plugin_wishlists",
-    "giftregistry": "./cartridges/plugin_giftregistry"
+    "giftregistry": "./cartridges/plugin_giftregistry",
+    "notifyMe": "./cartridges/notify_me"
   }
 }
