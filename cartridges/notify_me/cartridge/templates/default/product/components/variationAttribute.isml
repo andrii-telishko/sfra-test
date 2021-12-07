@@ -37,18 +37,17 @@
 
     <iselse>
         <!-- Attribute Values Drop Down Menu -->
-        <select class="custom-select form-control select-${attr.id}" ${ (product.productType === "variant" && isBundle) || pdict.disabledAttribute ? "disabled" : "" }>
+        <select class="custom-select form-control select-${attr.id}" id="${attr.id}-${loopState && loopState.count ? loopState.count : '1' }" ${ (product.productType === "variant" && isBundle) || pdict.disabledAttribute ? "disabled" : "" }>
             <option value="${attr.resetUrl}">
                 ${Resource.msg('label.select', 'common', null)} ${attr.displayName}
             </option>
             <isloop items="${attr.values}" var="attrValue">
                 <option value="${attrValue.url}" data-attr-value="${attrValue.value}"
-                    ${!attrValue.selectable ? 'disabled' : ''}
                     ${attrValue.selected ? 'selected' : ''}
                 
                 >
                      ${attrValue.displayValue}
-                
+                <isif condition="${!attrValue.selectable}"><span>${Resource.msg('message.notifyme', 'notify', null)}</span></isif>
                 </option>
             </isloop>
         </select>

@@ -1,19 +1,39 @@
-
-<form action="${pdict.actionUrl}" class="notify-submit" method="POST" name="login-form">
-    <div class="form-group required">
-        <label class="form-control-label" for="notify-form-email">
-            ${Resource.msg('label.input.login.email', 'login', null)}
-        </label>
-        <input type="email" id="notify-form-email" required aria-required="true" class="form-control required" aria-describedby="form-email-error"  <isprint value="${pdict.NotifyForm.email.attributes}" encoding="off" /> >
-        <div class="invalid-feedback" id="form-email-error"></div>
+<isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/notifyme.js');
+        assets.addCss('/css/login.css');
+    </isscript>
+    <div class="row justify-content-center equal-height">
+        <div class="col-sm-8 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="login-form-nav">
+                        <isset name="NotifyForm" value="${pdict.NotifyForm}" scope="page" />
+                        <form action="${pdict.actionUrl}" method="POST" class="notifyme-form" <isprint value="${pdict.NotifyForm.attributes}" encoding="off" />>
+                            <input type="hidden" class='' <isprint value="${pdict.NotifyForm.productId.attributes}" encoding="off" /> />
+                            <div class="form-group required">
+                                <label class="form-control-label">
+                                    <isprint value="${pdict.NotifyForm.name.label}" encoding="htmlcontent" />
+                                </label>
+                                <input type="input" class="form-control" <isprint value="${pdict.NotifyForm.name.attributes}" encoding="off"/> />
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="form-group required">
+                                <label class="form-control-label">
+                                    <isprint value="${pdict.NotifyForm.email.label}" encoding="htmlcontent" />
+                                </label>
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    id="notifyme-form-email"
+                                    data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}"
+                                    <isprint value="${pdict.NotifyForm.email.attributes}" encoding="off" /> />
+                                <div class="invalid-feedback"></div>
+                            </div>
+                               <button type="submit" class="btn btn-block btn-primary">${Resource.msg('button.form.emailsignup', 'homePage', null)}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="form-group required">
-        <label class="form-control-label" for="notify-form-id">
-               ProductId
-        </label>
-        <input type="text" id="notify-form-id" required aria-required="true" class="form-control" aria-describedby="form-password-error" <isprint value="${pdict.NotifyForm.productId.attributes}" encoding="off" />>
-        <div class="invalid-feedback" id="form-password-error"></div>
-    </div>
-
-    <button type="submit" class="btn btn-block btn-primary">Subscribe</button>
-</form>

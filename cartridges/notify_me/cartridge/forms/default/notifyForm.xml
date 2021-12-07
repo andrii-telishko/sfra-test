@@ -2,7 +2,7 @@
 <form xmlns="http://www.demandware.com/xml/form/2008-04-19">
 	<field
 			formid="email" 
-			label="label.input.email.notifyFotm" 
+			label="Email" 
 			mandatory="true" 
 			max-length="50" 
 			missing-error="error.message.required"
@@ -11,9 +11,16 @@
 			regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" 
 			value-error="ValueErrorText"
 			type="string"/> 
-<field
+	<field 
+			formid="name" 
+			label="Name" 
+			mandatory="false" 
+			max-length="50"
+			missing-error="error.message.required" 
+			range-error="error.message.50orless" 
+			type="string" />
+    <field
 			formid="productId" 
-			label="label.input.productId.notifyForm" 
 			mandatory="true" 
 			max-length="50" 
 			missing-error="error.message.required"

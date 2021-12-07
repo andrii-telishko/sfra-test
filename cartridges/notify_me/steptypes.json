@@ -7,7 +7,7 @@
                 "@supports-site-context": "true",
                 "@supports-organization-context": "false",
                 "description": "My custom script step type",
-                "module": "app_base/cartridge/scripts/steps/sendEmail.js",
+                "module": "notify_me/cartridge/scripts/steps/sendEmail.js",
                 "function": "sendEmail",
                 "transactional": "false",
                 "timeout-in-seconds": "900"

@@ -181,7 +181,6 @@ server.get("Variation", function (req, res, next) {
     res.json({
         product: product,
         resources: productHelper.getResources(),
-        redirectUrl: URLUtils.url("NotifyForm-Show"),
     });
 
     next();

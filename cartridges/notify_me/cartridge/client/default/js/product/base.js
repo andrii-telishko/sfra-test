@@ -1,5 +1,6 @@
 "use strict";
-var focusHelper = require("../components/focus");
+var focusHelper = require("base/components/focus");
+var modal = require("../modal/modal");
 
 /**
  * Retrieves the relevant pid value
@@ -136,11 +137,10 @@ function processNonSwatchValues(attr, $productContainer) {
             $attr + ' [data-attr-value="' + attrValue.value + '"]'
         );
         $attrValue.attr("value", attrValue.url).removeAttr("disabled");
-        // $attrValue.removeAttr("disabled");
 
-        // if (!attrValue.selectable) {
-        //     $attrValue.attr("disabled", fasle);
-        // }
+        /*         if (!attrValue.selectable) {
+            $attrValue.attr('disabled', true);
+        } */
     });
 }
 
@@ -319,6 +319,10 @@ function createCarousel(imgs, $productContainer) {
  * @param {jQuery} $productContainer - DOM element for a given product.
  */
 function handleVariantResponse(response, $productContainer) {
+    if (response.product.renderNotifyMe) {
+        modal.displayModal(response.product.renderNotifyMeURL);
+    }
+
     var isChoiceOfBonusProducts =
         $productContainer.parents(".choose-bonus-product-dialog").length > 0;
     var isVaraint;
@@ -727,11 +731,11 @@ module.exports = {
             'select[class*="select-"], .options-select',
             function (e) {
                 e.preventDefault();
+
                 var $productContainer = $(this).closest(".set-item");
                 if (!$productContainer.length) {
                     $productContainer = $(this).closest(".product-detail");
                 }
-
                 attributeSelect(e.currentTarget.value, $productContainer);
             }
         );
