@@ -44,7 +44,8 @@
             <isloop items="${attr.values}" var="attrValue">
                 <option value="${attrValue.url}" data-attr-value="${attrValue.value}"
                     ${attrValue.selected ? 'selected' : ''}
-                
+                    data-display="${attrValue.displayValue}"
+                    data-notify=" ${Resource.msg('message.notifyme', 'notify', null)}"
                 >
                      ${attrValue.displayValue}
                 <isif condition="${!attrValue.selectable}"><span>${Resource.msg('message.notifyme', 'notify', null)}</span></isif>

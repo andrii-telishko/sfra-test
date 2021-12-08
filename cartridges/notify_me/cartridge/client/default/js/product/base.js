@@ -137,10 +137,12 @@ function processNonSwatchValues(attr, $productContainer) {
             $attr + ' [data-attr-value="' + attrValue.value + '"]'
         );
         $attrValue.attr("value", attrValue.url).removeAttr("disabled");
-
-        /*         if (!attrValue.selectable) {
-            $attrValue.attr('disabled', true);
-        } */
+        $attrValue.text(`${$attrValue.data("display")}`);
+        if (!attrValue.selectable) {
+            $attrValue.text(
+                `${$attrValue.data("display")} ${$attrValue.data("notify")}`
+            );
+        }
     });
 }
 
@@ -320,7 +322,7 @@ function createCarousel(imgs, $productContainer) {
  */
 function handleVariantResponse(response, $productContainer) {
     if (response.product.renderNotifyMe) {
-        modal.displayModal(response.product.renderNotifyMeURL);
+        modal.displayModal(response.product.renderNotifyMeUrl);
     }
 
     var isChoiceOfBonusProducts =
