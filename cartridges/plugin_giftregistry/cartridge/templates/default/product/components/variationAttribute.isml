@@ -45,8 +45,10 @@
                 <option value="${attrValue.url}" data-attr-value="${attrValue.value}"
                     ${!attrValue.selectable ? 'disabled' : ''}
                     ${attrValue.selected ? 'selected' : ''}
+                
                 >
-                    ${attrValue.displayValue}
+                     ${attrValue.displayValue}
+                
                 </option>
             </isloop>
         </select>

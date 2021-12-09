@@ -1,0 +1,17 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.SendNotifyScriptStepType",
+                "@supports-parallel-execution": "true",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "My custom script step type",
+                "module": "notify_me/cartridge/scripts/steps/sendEmail.js",
+                "function": "sendEmail",
+                "transactional": "false",
+                "timeout-in-seconds": "900"
+            }
+        ]
+    }
+}

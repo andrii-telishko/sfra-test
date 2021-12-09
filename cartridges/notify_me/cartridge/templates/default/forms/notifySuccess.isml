@@ -1,0 +1,2 @@
+<h3>${Resource.msg('message.hello', 'notify', null)}, ${pdict.NotifyForm.name.value}</h3>
+<p>You will get notification on ${pdict.NotifyForm.email.value} when ${pdict.product} back to stock</p>

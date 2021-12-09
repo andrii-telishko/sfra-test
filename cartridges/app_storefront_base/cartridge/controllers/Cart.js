@@ -1,13 +1,13 @@
-'use strict';
+"use strict";
 
 /**
  * @namespace Cart
  */
 
-var server = require('server');
+var server = require("server");
 
-var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
-var consentTracking = require('*/cartridge/scripts/middleware/consentTracking');
+var csrfProtection = require("*/cartridge/scripts/middleware/csrf");
+var consentTracking = require("*/cartridge/scripts/middleware/consentTracking");
 
 /**
  * Cart-MiniCart : The Cart-MiniCart endpoint is responsible for displaying the cart icon in the header with the number of items in the current basket
@@ -19,8 +19,8 @@ var consentTracking = require('*/cartridge/scripts/middleware/consentTracking');
  * @param {renders} - isml
  * @param {serverfunction} - get
  */
-server.get('MiniCart', server.middleware.include, function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
+server.get("MiniCart", server.middleware.include, function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
 
     var currentBasket = BasketMgr.getCurrentBasket();
     var quantityTotal;
@@ -31,7 +31,7 @@ server.get('MiniCart', server.middleware.include, function (req, res, next) {
         quantityTotal = 0;
     }
 
-    res.render('/components/header/miniCart', { quantityTotal: quantityTotal });
+    res.render("/components/header/miniCart", { quantityTotal: quantityTotal });
     next();
 });
 
@@ -47,20 +47,21 @@ server.get('MiniCart', server.middleware.include, function (req, res, next) {
  * @param {returns} - json
  * @param {serverfunction} - post
  */
-server.post('AddProduct', function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var Resource = require('dw/web/Resource');
-    var URLUtils = require('dw/web/URLUtils');
-    var Transaction = require('dw/system/Transaction');
-    var CartModel = require('*/cartridge/models/cart');
-    var ProductLineItemsModel = require('*/cartridge/models/productLineItems');
-    var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+server.post("AddProduct", function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
+    var Resource = require("dw/web/Resource");
+    var URLUtils = require("dw/web/URLUtils");
+    var Transaction = require("dw/system/Transaction");
+    var CartModel = require("*/cartridge/models/cart");
+    var ProductLineItemsModel = require("*/cartridge/models/productLineItems");
+    var cartHelper = require("*/cartridge/scripts/cart/cartHelpers");
+    var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
     var currentBasket = BasketMgr.getCurrentOrNewBasket();
-    var previousBonusDiscountLineItems = currentBasket.getBonusDiscountLineItems();
+    var previousBonusDiscountLineItems =
+        currentBasket.getBonusDiscountLineItems();
     var productId = req.form.pid;
-    var childProducts = Object.hasOwnProperty.call(req.form, 'childProducts')
+    var childProducts = Object.hasOwnProperty.call(req.form, "childProducts")
         ? JSON.parse(req.form.childProducts)
         : [];
     var options = req.form.options ? JSON.parse(req.form.options) : [];
@@ -84,12 +85,18 @@ server.post('AddProduct', function (req, res, next) {
                 pidsObj = JSON.parse(req.form.pidsObj);
                 result = {
                     error: false,
-                    message: Resource.msg('text.alert.addedtobasket', 'product', null)
+                    message: Resource.msg(
+                        "text.alert.addedtobasket",
+                        "product",
+                        null
+                    ),
                 };
 
                 pidsObj.forEach(function (PIDObj) {
                     quantity = parseInt(PIDObj.qty, 10);
-                    var pidOptions = PIDObj.options ? JSON.parse(PIDObj.options) : {};
+                    var pidOptions = PIDObj.options
+                        ? JSON.parse(PIDObj.options)
+                        : {};
                     var PIDObjResult = cartHelper.addProductToCart(
                         currentBasket,
                         PIDObj.pid,
@@ -110,36 +117,42 @@ server.post('AddProduct', function (req, res, next) {
         });
     }
 
-    var quantityTotal = ProductLineItemsModel.getTotalQuantity(currentBasket.productLineItems);
+    var quantityTotal = ProductLineItemsModel.getTotalQuantity(
+        currentBasket.productLineItems
+    );
     var cartModel = new CartModel(currentBasket);
 
     var urlObject = {
-        url: URLUtils.url('Cart-ChooseBonusProducts').toString(),
-        configureProductstUrl: URLUtils.url('Product-ShowBonusProducts').toString(),
-        addToCartUrl: URLUtils.url('Cart-AddBonusProducts').toString()
+        url: URLUtils.url("Cart-ChooseBonusProducts").toString(),
+        configureProductstUrl: URLUtils.url(
+            "Product-ShowBonusProducts"
+        ).toString(),
+        addToCartUrl: URLUtils.url("Cart-AddBonusProducts").toString(),
     };
 
-    var newBonusDiscountLineItem =
-        cartHelper.getNewBonusDiscountLineItem(
-            currentBasket,
-            previousBonusDiscountLineItems,
-            urlObject,
-            result.uuid
-        );
+    var newBonusDiscountLineItem = cartHelper.getNewBonusDiscountLineItem(
+        currentBasket,
+        previousBonusDiscountLineItems,
+        urlObject,
+        result.uuid
+    );
     if (newBonusDiscountLineItem) {
         var allLineItems = currentBasket.allProductLineItems;
-        var collections = require('*/cartridge/scripts/util/collections');
+        var collections = require("*/cartridge/scripts/util/collections");
         collections.forEach(allLineItems, function (pli) {
             if (pli.UUID === result.uuid) {
                 Transaction.wrap(function () {
-                    pli.custom.bonusProductLineItemUUID = 'bonus'; // eslint-disable-line no-param-reassign
+                    pli.custom.bonusProductLineItemUUID = "bonus"; // eslint-disable-line no-param-reassign
                     pli.custom.preOrderUUID = pli.UUID; // eslint-disable-line no-param-reassign
                 });
             }
         });
     }
 
-    var reportingURL = cartHelper.getReportingUrlAddToCart(currentBasket, result.error);
+    var reportingURL = cartHelper.getReportingUrlAddToCart(
+        currentBasket,
+        result.error
+    );
 
     res.json({
         reportingURL: reportingURL,
@@ -149,7 +162,12 @@ server.post('AddProduct', function (req, res, next) {
         newBonusDiscountLineItem: newBonusDiscountLineItem || {},
         error: result.error,
         pliUUID: result.uuid,
-        minicartCountOfItems: Resource.msgf('minicart.count', 'common', null, quantityTotal)
+        minicartCountOfItems: Resource.msgf(
+            "minicart.count",
+            "common",
+            null,
+            quantityTotal
+        ),
     });
 
     next();
@@ -168,24 +186,27 @@ server.post('AddProduct', function (req, res, next) {
  * @param {serverfunction} - get
  */
 server.get(
-    'Show',
+    "Show",
     server.middleware.https,
     consentTracking.consent,
     csrfProtection.generateToken,
     function (req, res, next) {
-        var BasketMgr = require('dw/order/BasketMgr');
-        var Transaction = require('dw/system/Transaction');
-        var CartModel = require('*/cartridge/models/cart');
-        var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
-        var reportingUrlsHelper = require('*/cartridge/scripts/reportingUrls');
-        var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+        var BasketMgr = require("dw/order/BasketMgr");
+        var Transaction = require("dw/system/Transaction");
+        var CartModel = require("*/cartridge/models/cart");
+        var cartHelper = require("*/cartridge/scripts/cart/cartHelpers");
+        var reportingUrlsHelper = require("*/cartridge/scripts/reportingUrls");
+        var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
         var currentBasket = BasketMgr.getCurrentBasket();
         var reportingURLs;
 
         if (currentBasket) {
             Transaction.wrap(function () {
-                if (currentBasket.currencyCode !== req.session.currency.currencyCode) {
+                if (
+                    currentBasket.currencyCode !==
+                    req.session.currency.currencyCode
+                ) {
                     currentBasket.updateCurrency();
                 }
                 cartHelper.ensureAllShipmentsHaveMethods(currentBasket);
@@ -195,13 +216,14 @@ server.get(
         }
 
         if (currentBasket && currentBasket.allLineItems.length) {
-            reportingURLs = reportingUrlsHelper.getBasketOpenReportingURLs(currentBasket);
+            reportingURLs =
+                reportingUrlsHelper.getBasketOpenReportingURLs(currentBasket);
         }
 
         res.setViewData({ reportingURLs: reportingURLs });
 
         var basketModel = new CartModel(currentBasket);
-        res.render('cart/cart', basketModel);
+        res.render("cart/cart", basketModel);
         next();
     }
 );
@@ -215,12 +237,12 @@ server.get(
  * @param {returns} - json
  * @param {serverfunction} - get
  */
-server.get('Get', function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var Transaction = require('dw/system/Transaction');
-    var CartModel = require('*/cartridge/models/cart');
-    var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+server.get("Get", function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
+    var Transaction = require("dw/system/Transaction");
+    var CartModel = require("*/cartridge/models/cart");
+    var cartHelper = require("*/cartridge/scripts/cart/cartHelpers");
+    var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
     var currentBasket = BasketMgr.getCurrentBasket();
 
@@ -249,13 +271,13 @@ server.get('Get', function (req, res, next) {
  * @param {returns} - json
  * @param {serverfunction} - get
  */
-server.get('RemoveProductLineItem', function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var Resource = require('dw/web/Resource');
-    var Transaction = require('dw/system/Transaction');
-    var URLUtils = require('dw/web/URLUtils');
-    var CartModel = require('*/cartridge/models/cart');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+server.get("RemoveProductLineItem", function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
+    var Resource = require("dw/web/Resource");
+    var Transaction = require("dw/system/Transaction");
+    var URLUtils = require("dw/web/URLUtils");
+    var CartModel = require("*/cartridge/models/cart");
+    var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
     var currentBasket = BasketMgr.getCurrentBasket();
 
@@ -263,7 +285,7 @@ server.get('RemoveProductLineItem', function (req, res, next) {
         res.setStatusCode(500);
         res.json({
             error: true,
-            redirectUrl: URLUtils.url('Cart-Show').toString()
+            redirectUrl: URLUtils.url("Cart-Show").toString(),
         });
 
         return next();
@@ -274,18 +296,26 @@ server.get('RemoveProductLineItem', function (req, res, next) {
 
     Transaction.wrap(function () {
         if (req.querystring.pid && req.querystring.uuid) {
-            var productLineItems = currentBasket.getAllProductLineItems(req.querystring.pid);
+            var productLineItems = currentBasket.getAllProductLineItems(
+                req.querystring.pid
+            );
             var bonusProductLineItems = currentBasket.bonusLineItems;
             var mainProdItem;
             for (var i = 0; i < productLineItems.length; i++) {
                 var item = productLineItems[i];
-                if ((item.UUID === req.querystring.uuid)) {
-                    if (bonusProductLineItems && bonusProductLineItems.length > 0) {
+                if (item.UUID === req.querystring.uuid) {
+                    if (
+                        bonusProductLineItems &&
+                        bonusProductLineItems.length > 0
+                    ) {
                         for (var j = 0; j < bonusProductLineItems.length; j++) {
                             var bonusItem = bonusProductLineItems[j];
-                            mainProdItem = bonusItem.getQualifyingProductLineItemForBonusProduct();
-                            if (mainProdItem !== null
-                                && (mainProdItem.productID === item.productID)) {
+                            mainProdItem =
+                                bonusItem.getQualifyingProductLineItemForBonusProduct();
+                            if (
+                                mainProdItem !== null &&
+                                mainProdItem.productID === item.productID
+                            ) {
                                 bonusProductsUUIDs.push(bonusItem.UUID);
                             }
                         }
@@ -293,7 +323,10 @@ server.get('RemoveProductLineItem', function (req, res, next) {
 
                     var shipmentToRemove = item.shipment;
                     currentBasket.removeProductLineItem(item);
-                    if (shipmentToRemove.productLineItems.empty && !shipmentToRemove.default) {
+                    if (
+                        shipmentToRemove.productLineItems.empty &&
+                        !shipmentToRemove.default
+                    ) {
                         currentBasket.removeShipment(shipmentToRemove);
                     }
                     isProductLineItemFound = true;
@@ -308,12 +341,18 @@ server.get('RemoveProductLineItem', function (req, res, next) {
         var basketModel = new CartModel(currentBasket);
         var basketModelPlus = {
             basket: basketModel,
-            toBeDeletedUUIDs: bonusProductsUUIDs
+            toBeDeletedUUIDs: bonusProductsUUIDs,
         };
         res.json(basketModelPlus);
     } else {
         res.setStatusCode(500);
-        res.json({ errorMessage: Resource.msg('error.cannot.remove.product', 'cart', null) });
+        res.json({
+            errorMessage: Resource.msg(
+                "error.cannot.remove.product",
+                "cart",
+                null
+            ),
+        });
     }
 
     return next();
@@ -331,15 +370,15 @@ server.get('RemoveProductLineItem', function (req, res, next) {
  * @param {returns} - json
  * @param {serverfunction} - get
  */
-server.get('UpdateQuantity', function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var Resource = require('dw/web/Resource');
-    var Transaction = require('dw/system/Transaction');
-    var URLUtils = require('dw/web/URLUtils');
-    var CartModel = require('*/cartridge/models/cart');
-    var collections = require('*/cartridge/scripts/util/collections');
-    var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+server.get("UpdateQuantity", function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
+    var Resource = require("dw/web/Resource");
+    var Transaction = require("dw/system/Transaction");
+    var URLUtils = require("dw/web/URLUtils");
+    var CartModel = require("*/cartridge/models/cart");
+    var collections = require("*/cartridge/scripts/util/collections");
+    var cartHelper = require("*/cartridge/scripts/cart/cartHelpers");
+    var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
     var currentBasket = BasketMgr.getCurrentBasket();
 
@@ -347,7 +386,7 @@ server.get('UpdateQuantity', function (req, res, next) {
         res.setStatusCode(500);
         res.json({
             error: true,
-            redirectUrl: URLUtils.url('Cart-Show').toString()
+            redirectUrl: URLUtils.url("Cart-Show").toString(),
         });
 
         return next();
@@ -368,29 +407,41 @@ server.get('UpdateQuantity', function (req, res, next) {
     var perpetual = false;
     var canBeUpdated = false;
     var bundleItems;
-    var bonusDiscountLineItemCount = currentBasket.bonusDiscountLineItems.length;
+    var bonusDiscountLineItemCount =
+        currentBasket.bonusDiscountLineItems.length;
 
     if (matchingLineItem) {
         if (matchingLineItem.product.bundle) {
             bundleItems = matchingLineItem.bundledProductLineItems;
             canBeUpdated = collections.every(bundleItems, function (item) {
-                var quantityToUpdate = updateQuantity *
-                    matchingLineItem.product.getBundledProductQuantity(item.product).value;
+                var quantityToUpdate =
+                    updateQuantity *
+                    matchingLineItem.product.getBundledProductQuantity(
+                        item.product
+                    ).value;
                 qtyAlreadyInCart = cartHelper.getQtyAlreadyInCart(
                     item.productID,
                     productLineItems,
                     item.UUID
                 );
                 totalQtyRequested = quantityToUpdate + qtyAlreadyInCart;
-                availableToSell = item.product.availabilityModel.inventoryRecord.ATS.value;
-                perpetual = item.product.availabilityModel.inventoryRecord.perpetual;
+                availableToSell =
+                    item.product.availabilityModel.inventoryRecord.ATS.value;
+                perpetual =
+                    item.product.availabilityModel.inventoryRecord.perpetual;
                 minOrderQuantity = item.product.minOrderQuantity.value;
-                return (totalQtyRequested <= availableToSell || perpetual) &&
-                    (quantityToUpdate >= minOrderQuantity);
+                return (
+                    (totalQtyRequested <= availableToSell || perpetual) &&
+                    quantityToUpdate >= minOrderQuantity
+                );
             });
         } else {
-            availableToSell = matchingLineItem.product.availabilityModel.inventoryRecord.ATS.value;
-            perpetual = matchingLineItem.product.availabilityModel.inventoryRecord.perpetual;
+            availableToSell =
+                matchingLineItem.product.availabilityModel.inventoryRecord.ATS
+                    .value;
+            perpetual =
+                matchingLineItem.product.availabilityModel.inventoryRecord
+                    .perpetual;
             qtyAlreadyInCart = cartHelper.getQtyAlreadyInCart(
                 productId,
                 productLineItems,
@@ -398,8 +449,9 @@ server.get('UpdateQuantity', function (req, res, next) {
             );
             totalQtyRequested = updateQuantity + qtyAlreadyInCart;
             minOrderQuantity = matchingLineItem.product.minOrderQuantity.value;
-            canBeUpdated = (totalQtyRequested <= availableToSell || perpetual) &&
-                (updateQuantity >= minOrderQuantity);
+            canBeUpdated =
+                (totalQtyRequested <= availableToSell || perpetual) &&
+                updateQuantity >= minOrderQuantity;
         }
     }
 
@@ -407,21 +459,33 @@ server.get('UpdateQuantity', function (req, res, next) {
         Transaction.wrap(function () {
             matchingLineItem.setQuantityValue(updateQuantity);
 
-            var previousBounsDiscountLineItems = collections.map(currentBasket.bonusDiscountLineItems, function (bonusDiscountLineItem) {
-                return bonusDiscountLineItem.UUID;
-            });
+            var previousBounsDiscountLineItems = collections.map(
+                currentBasket.bonusDiscountLineItems,
+                function (bonusDiscountLineItem) {
+                    return bonusDiscountLineItem.UUID;
+                }
+            );
 
             basketCalculationHelpers.calculateTotals(currentBasket);
-            if (currentBasket.bonusDiscountLineItems.length > bonusDiscountLineItemCount) {
+            if (
+                currentBasket.bonusDiscountLineItems.length >
+                bonusDiscountLineItemCount
+            ) {
                 var prevItems = JSON.stringify(previousBounsDiscountLineItems);
 
-                collections.forEach(currentBasket.bonusDiscountLineItems, function (bonusDiscountLineItem) {
-                    if (prevItems.indexOf(bonusDiscountLineItem.UUID) < 0) {
-                        bonusDiscountLineItem.custom.bonusProductLineItemUUID = matchingLineItem.UUID; // eslint-disable-line no-param-reassign
-                        matchingLineItem.custom.bonusProductLineItemUUID = 'bonus';
-                        matchingLineItem.custom.preOrderUUID = matchingLineItem.UUID;
+                collections.forEach(
+                    currentBasket.bonusDiscountLineItems,
+                    function (bonusDiscountLineItem) {
+                        if (prevItems.indexOf(bonusDiscountLineItem.UUID) < 0) {
+                            bonusDiscountLineItem.custom.bonusProductLineItemUUID =
+                                matchingLineItem.UUID; // eslint-disable-line no-param-reassign
+                            matchingLineItem.custom.bonusProductLineItemUUID =
+                                "bonus";
+                            matchingLineItem.custom.preOrderUUID =
+                                matchingLineItem.UUID;
+                        }
                     }
-                });
+                );
             }
         });
     }
@@ -432,7 +496,11 @@ server.get('UpdateQuantity', function (req, res, next) {
     } else {
         res.setStatusCode(500);
         res.json({
-            errorMessage: Resource.msg('error.cannot.update.product.quantity', 'cart', null)
+            errorMessage: Resource.msg(
+                "error.cannot.update.product.quantity",
+                "cart",
+                null
+            ),
         });
     }
 
@@ -453,60 +521,71 @@ server.get('UpdateQuantity', function (req, res, next) {
  * @param {returns} - json
  * @param {serverfunction} - post
  */
-server.post('SelectShippingMethod', server.middleware.https, function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var Resource = require('dw/web/Resource');
-    var Transaction = require('dw/system/Transaction');
-    var URLUtils = require('dw/web/URLUtils');
-    var CartModel = require('*/cartridge/models/cart');
-    var shippingHelper = require('*/cartridge/scripts/checkout/shippingHelpers');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+server.post(
+    "SelectShippingMethod",
+    server.middleware.https,
+    function (req, res, next) {
+        var BasketMgr = require("dw/order/BasketMgr");
+        var Resource = require("dw/web/Resource");
+        var Transaction = require("dw/system/Transaction");
+        var URLUtils = require("dw/web/URLUtils");
+        var CartModel = require("*/cartridge/models/cart");
+        var shippingHelper = require("*/cartridge/scripts/checkout/shippingHelpers");
+        var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
-    var currentBasket = BasketMgr.getCurrentBasket();
+        var currentBasket = BasketMgr.getCurrentBasket();
 
-    if (!currentBasket) {
-        res.json({
-            error: true,
-            redirectUrl: URLUtils.url('Cart-Show').toString()
-        });
+        if (!currentBasket) {
+            res.json({
+                error: true,
+                redirectUrl: URLUtils.url("Cart-Show").toString(),
+            });
 
-        return next();
-    }
-
-    var error = false;
-
-    var shipUUID = req.querystring.shipmentUUID || req.form.shipmentUUID;
-    var methodID = req.querystring.methodID || req.form.methodID;
-    var shipment;
-    if (shipUUID) {
-        shipment = shippingHelper.getShipmentByUUID(currentBasket, shipUUID);
-    } else {
-        shipment = currentBasket.defaultShipment;
-    }
-
-    Transaction.wrap(function () {
-        shippingHelper.selectShippingMethod(shipment, methodID);
-
-        if (currentBasket && !shipment.shippingMethod) {
-            error = true;
-            return;
+            return next();
         }
 
-        basketCalculationHelpers.calculateTotals(currentBasket);
-    });
+        var error = false;
 
-    if (!error) {
-        var basketModel = new CartModel(currentBasket);
+        var shipUUID = req.querystring.shipmentUUID || req.form.shipmentUUID;
+        var methodID = req.querystring.methodID || req.form.methodID;
+        var shipment;
+        if (shipUUID) {
+            shipment = shippingHelper.getShipmentByUUID(
+                currentBasket,
+                shipUUID
+            );
+        } else {
+            shipment = currentBasket.defaultShipment;
+        }
 
-        res.json(basketModel);
-    } else {
-        res.setStatusCode(500);
-        res.json({
-            errorMessage: Resource.msg('error.cannot.select.shipping.method', 'cart', null)
+        Transaction.wrap(function () {
+            shippingHelper.selectShippingMethod(shipment, methodID);
+
+            if (currentBasket && !shipment.shippingMethod) {
+                error = true;
+                return;
+            }
+
+            basketCalculationHelpers.calculateTotals(currentBasket);
         });
+
+        if (!error) {
+            var basketModel = new CartModel(currentBasket);
+
+            res.json(basketModel);
+        } else {
+            res.setStatusCode(500);
+            res.json({
+                errorMessage: Resource.msg(
+                    "error.cannot.select.shipping.method",
+                    "cart",
+                    null
+                ),
+            });
+        }
+        return next();
     }
-    return next();
-});
+);
 
 /**
  * Cart-MiniCartShow : The Cart-MiniCartShow is responsible for getting the basket and showing the contents when you hover over minicart in header
@@ -517,20 +596,22 @@ server.post('SelectShippingMethod', server.middleware.https, function (req, res,
  * @param {renders} - isml
  * @param {serverfunction} - get
  */
-server.get('MiniCartShow', function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var Transaction = require('dw/system/Transaction');
-    var CartModel = require('*/cartridge/models/cart');
-    var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
-    var reportingUrlsHelper = require('*/cartridge/scripts/reportingUrls');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+server.get("MiniCartShow", function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
+    var Transaction = require("dw/system/Transaction");
+    var CartModel = require("*/cartridge/models/cart");
+    var cartHelper = require("*/cartridge/scripts/cart/cartHelpers");
+    var reportingUrlsHelper = require("*/cartridge/scripts/reportingUrls");
+    var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
     var currentBasket = BasketMgr.getCurrentBasket();
     var reportingURLs;
 
     if (currentBasket) {
         Transaction.wrap(function () {
-            if (currentBasket.currencyCode !== req.session.currency.currencyCode) {
+            if (
+                currentBasket.currencyCode !== req.session.currency.currencyCode
+            ) {
                 currentBasket.updateCurrency();
             }
             cartHelper.ensureAllShipmentsHaveMethods(currentBasket);
@@ -539,15 +620,15 @@ server.get('MiniCartShow', function (req, res, next) {
     }
 
     if (currentBasket && currentBasket.allLineItems.length) {
-        reportingURLs = reportingUrlsHelper.getBasketOpenReportingURLs(currentBasket);
+        reportingURLs =
+            reportingUrlsHelper.getBasketOpenReportingURLs(currentBasket);
     }
 
     res.setViewData({ reportingURLs: reportingURLs });
 
-
     var basketModel = new CartModel(currentBasket);
 
-    res.render('checkout/cart/miniCart', basketModel);
+    res.render("checkout/cart/miniCart", basketModel);
     next();
 });
 
@@ -565,16 +646,16 @@ server.get('MiniCartShow', function (req, res, next) {
  * @param {serverfunction} - get
  */
 server.get(
-    'AddCoupon',
+    "AddCoupon",
     server.middleware.https,
     csrfProtection.validateAjaxRequest,
     function (req, res, next) {
-        var BasketMgr = require('dw/order/BasketMgr');
-        var Resource = require('dw/web/Resource');
-        var Transaction = require('dw/system/Transaction');
-        var URLUtils = require('dw/web/URLUtils');
-        var CartModel = require('*/cartridge/models/cart');
-        var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+        var BasketMgr = require("dw/order/BasketMgr");
+        var Resource = require("dw/web/Resource");
+        var Transaction = require("dw/system/Transaction");
+        var URLUtils = require("dw/web/URLUtils");
+        var CartModel = require("*/cartridge/models/cart");
+        var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
         var currentBasket = BasketMgr.getCurrentBasket();
 
@@ -582,7 +663,7 @@ server.get(
             res.setStatusCode(500);
             res.json({
                 error: true,
-                redirectUrl: URLUtils.url('Cart-Show').toString()
+                redirectUrl: URLUtils.url("Cart-Show").toString(),
             });
 
             return next();
@@ -590,7 +671,9 @@ server.get(
 
         if (!currentBasket) {
             res.setStatusCode(500);
-            res.json({ errorMessage: Resource.msg('error.add.coupon', 'cart', null) });
+            res.json({
+                errorMessage: Resource.msg("error.add.coupon", "cart", null),
+            });
             return next();
         }
 
@@ -599,30 +682,34 @@ server.get(
 
         try {
             Transaction.wrap(function () {
-                return currentBasket.createCouponLineItem(req.querystring.couponCode, true);
+                return currentBasket.createCouponLineItem(
+                    req.querystring.couponCode,
+                    true
+                );
             });
         } catch (e) {
             error = true;
             var errorCodes = {
-                COUPON_CODE_ALREADY_IN_BASKET: 'error.coupon.already.in.cart',
-                COUPON_ALREADY_IN_BASKET: 'error.coupon.cannot.be.combined',
-                COUPON_CODE_ALREADY_REDEEMED: 'error.coupon.already.redeemed',
-                COUPON_CODE_UNKNOWN: 'error.unable.to.add.coupon',
-                COUPON_DISABLED: 'error.unable.to.add.coupon',
-                REDEMPTION_LIMIT_EXCEEDED: 'error.unable.to.add.coupon',
-                TIMEFRAME_REDEMPTION_LIMIT_EXCEEDED: 'error.unable.to.add.coupon',
-                NO_ACTIVE_PROMOTION: 'error.unable.to.add.coupon',
-                default: 'error.unable.to.add.coupon'
+                COUPON_CODE_ALREADY_IN_BASKET: "error.coupon.already.in.cart",
+                COUPON_ALREADY_IN_BASKET: "error.coupon.cannot.be.combined",
+                COUPON_CODE_ALREADY_REDEEMED: "error.coupon.already.redeemed",
+                COUPON_CODE_UNKNOWN: "error.unable.to.add.coupon",
+                COUPON_DISABLED: "error.unable.to.add.coupon",
+                REDEMPTION_LIMIT_EXCEEDED: "error.unable.to.add.coupon",
+                TIMEFRAME_REDEMPTION_LIMIT_EXCEEDED:
+                    "error.unable.to.add.coupon",
+                NO_ACTIVE_PROMOTION: "error.unable.to.add.coupon",
+                default: "error.unable.to.add.coupon",
             };
 
             var errorMessageKey = errorCodes[e.errorCode] || errorCodes.default;
-            errorMessage = Resource.msg(errorMessageKey, 'cart', null);
+            errorMessage = Resource.msg(errorMessageKey, "cart", null);
         }
 
         if (error) {
             res.json({
                 error: error,
-                errorMessage: errorMessage
+                errorMessage: errorMessage,
             });
             return next();
         }
@@ -649,14 +736,14 @@ server.get(
  * @param {returns} - json
  * @param {serverfunction} - get
  */
-server.get('RemoveCouponLineItem', function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var Resource = require('dw/web/Resource');
-    var Transaction = require('dw/system/Transaction');
-    var URLUtils = require('dw/web/URLUtils');
-    var CartModel = require('*/cartridge/models/cart');
-    var collections = require('*/cartridge/scripts/util/collections');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+server.get("RemoveCouponLineItem", function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
+    var Resource = require("dw/web/Resource");
+    var Transaction = require("dw/system/Transaction");
+    var URLUtils = require("dw/web/URLUtils");
+    var CartModel = require("*/cartridge/models/cart");
+    var collections = require("*/cartridge/scripts/util/collections");
+    var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
     var currentBasket = BasketMgr.getCurrentBasket();
 
@@ -664,7 +751,7 @@ server.get('RemoveCouponLineItem', function (req, res, next) {
         res.setStatusCode(500);
         res.json({
             error: true,
-            redirectUrl: URLUtils.url('Cart-Show').toString()
+            redirectUrl: URLUtils.url("Cart-Show").toString(),
         });
 
         return next();
@@ -673,9 +760,12 @@ server.get('RemoveCouponLineItem', function (req, res, next) {
     var couponLineItem;
 
     if (currentBasket && req.querystring.uuid) {
-        couponLineItem = collections.find(currentBasket.couponLineItems, function (item) {
-            return item.UUID === req.querystring.uuid;
-        });
+        couponLineItem = collections.find(
+            currentBasket.couponLineItems,
+            function (item) {
+                return item.UUID === req.querystring.uuid;
+            }
+        );
 
         if (couponLineItem) {
             Transaction.wrap(function () {
@@ -691,7 +781,9 @@ server.get('RemoveCouponLineItem', function (req, res, next) {
     }
 
     res.setStatusCode(500);
-    res.json({ errorMessage: Resource.msg('error.cannot.remove.coupon', 'cart', null) });
+    res.json({
+        errorMessage: Resource.msg("error.cannot.remove.coupon", "cart", null),
+    });
     return next();
 });
 
@@ -707,13 +799,13 @@ server.get('RemoveCouponLineItem', function (req, res, next) {
  * @param {returns} - json
  * @param {serverfunction} - post
  */
-server.post('AddBonusProducts', function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var ProductMgr = require('dw/catalog/ProductMgr');
-    var productHelper = require('*/cartridge/scripts/helpers/productHelpers');
-    var Transaction = require('dw/system/Transaction');
-    var collections = require('*/cartridge/scripts/util/collections');
-    var Resource = require('dw/web/Resource');
+server.post("AddBonusProducts", function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
+    var ProductMgr = require("dw/catalog/ProductMgr");
+    var productHelper = require("*/cartridge/scripts/helpers/productHelpers");
+    var Transaction = require("dw/system/Transaction");
+    var collections = require("*/cartridge/scripts/util/collections");
+    var Resource = require("dw/web/Resource");
     var currentBasket = BasketMgr.getCurrentOrNewBasket();
     var data = JSON.parse(req.querystring.pids);
     var pliUUID = req.querystring.pliuuid;
@@ -728,35 +820,43 @@ server.post('AddBonusProducts', function (req, res, next) {
     if (totalQty === 0) {
         res.json({
             errorMessage: Resource.msg(
-                'error.alert.choiceofbonus.no.product.selected',
-                'product',
-                null),
+                "error.alert.choiceofbonus.no.product.selected",
+                "product",
+                null
+            ),
             error: true,
-            success: false
+            success: false,
         });
     } else if (totalQty > qtyAllowed) {
         res.json({
             errorMessage: Resource.msgf(
-                'error.alert.choiceofbonus.max.quantity',
-                'product',
+                "error.alert.choiceofbonus.max.quantity",
+                "product",
                 null,
                 qtyAllowed,
-                totalQty),
+                totalQty
+            ),
             error: true,
-            success: false
+            success: false,
         });
     } else {
-        var bonusDiscountLineItem = collections.find(newBonusDiscountLineItems, function (item) {
-            return item.UUID === req.querystring.uuid;
-        });
+        var bonusDiscountLineItem = collections.find(
+            newBonusDiscountLineItems,
+            function (item) {
+                return item.UUID === req.querystring.uuid;
+            }
+        );
 
         if (currentBasket) {
             Transaction.wrap(function () {
-                collections.forEach(bonusDiscountLineItem.getBonusProductLineItems(), function (dli) {
-                    if (dli.product) {
-                        currentBasket.removeProductLineItem(dli);
+                collections.forEach(
+                    bonusDiscountLineItem.getBonusProductLineItems(),
+                    function (dli) {
+                        if (dli.product) {
+                            currentBasket.removeProductLineItem(dli);
+                        }
                     }
-                });
+                );
 
                 var pli;
                 data.bonusProducts.forEach(function (bonusProduct) {
@@ -776,20 +876,29 @@ server.post('AddBonusProducts', function (req, res, next) {
                     pli.custom.bonusProductLineItemUUID = pliUUID;
                 });
 
-                collections.forEach(currentBasket.getAllProductLineItems(), function (productLineItem) {
-                    if (productLineItem.UUID === pliUUID) {
-                        productLineItem.custom.bonusProductLineItemUUID = 'bonus';// eslint-disable-line no-param-reassign
-                        productLineItem.custom.preOrderUUID = productLineItem.UUID;// eslint-disable-line no-param-reassign
+                collections.forEach(
+                    currentBasket.getAllProductLineItems(),
+                    function (productLineItem) {
+                        if (productLineItem.UUID === pliUUID) {
+                            productLineItem.custom.bonusProductLineItemUUID =
+                                "bonus"; // eslint-disable-line no-param-reassign
+                            productLineItem.custom.preOrderUUID =
+                                productLineItem.UUID; // eslint-disable-line no-param-reassign
+                        }
                     }
-                });
+                );
             });
         }
 
         res.json({
             totalQty: currentBasket.productQuantityTotal,
-            msgSuccess: Resource.msg('text.alert.choiceofbonus.addedtobasket', 'product', null),
+            msgSuccess: Resource.msg(
+                "text.alert.choiceofbonus.addedtobasket",
+                "product",
+                null
+            ),
             success: true,
-            error: false
+            error: false,
         });
     }
     next();
@@ -805,32 +914,42 @@ server.post('AddBonusProducts', function (req, res, next) {
  * @param {returns} - json
  * @param {serverfunction} - get
  */
-server.get('EditBonusProduct', function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var collections = require('*/cartridge/scripts/util/collections');
-    var Resource = require('dw/web/Resource');
-    var URLUtils = require('dw/web/URLUtils');
+server.get("EditBonusProduct", function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
+    var collections = require("*/cartridge/scripts/util/collections");
+    var Resource = require("dw/web/Resource");
+    var URLUtils = require("dw/web/URLUtils");
     var currentBasket = BasketMgr.getCurrentOrNewBasket();
     var duuid = req.querystring.duuid;
-    var bonusDiscountLineItem = collections.find(currentBasket.getBonusDiscountLineItems(), function (item) {
-        return item.UUID === duuid;
-    });
-    var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
+    var bonusDiscountLineItem = collections.find(
+        currentBasket.getBonusDiscountLineItems(),
+        function (item) {
+            return item.UUID === duuid;
+        }
+    );
+    var cartHelper = require("*/cartridge/scripts/cart/cartHelpers");
 
-    var selectedBonusProducts = collections.map(bonusDiscountLineItem.bonusProductLineItems, function (bonusProductLineItem) {
-        return {
-            pid: bonusProductLineItem.productID,
-            name: bonusProductLineItem.productName,
-            submittedQty: bonusProductLineItem.quantityValue
-        };
-    });
+    var selectedBonusProducts = collections.map(
+        bonusDiscountLineItem.bonusProductLineItems,
+        function (bonusProductLineItem) {
+            return {
+                pid: bonusProductLineItem.productID,
+                name: bonusProductLineItem.productName,
+                submittedQty: bonusProductLineItem.quantityValue,
+            };
+        }
+    );
 
-    var pids = collections.pluck(bonusDiscountLineItem.bonusProducts, 'ID').join();
+    var pids = collections
+        .pluck(bonusDiscountLineItem.bonusProducts, "ID")
+        .join();
 
     res.json({
         selectedBonusProducts: selectedBonusProducts,
-        addToCartUrl: URLUtils.url('Cart-AddBonusProducts').relative().toString(),
-        showProductsUrl: URLUtils.url('Product-ShowBonusProducts').toString(),
+        addToCartUrl: URLUtils.url("Cart-AddBonusProducts")
+            .relative()
+            .toString(),
+        showProductsUrl: URLUtils.url("Product-ShowBonusProducts").toString(),
         maxBonusItems: bonusDiscountLineItem.maxBonusItems,
         pageSize: cartHelper.BONUS_PRODUCTS_PAGE_SIZE,
         pliUUID: bonusDiscountLineItem.custom.bonusProductLineItemUUID,
@@ -838,11 +957,33 @@ server.get('EditBonusProduct', function (req, res, next) {
         bonusChoiceRuleBased: bonusDiscountLineItem.bonusChoiceRuleBased,
         selectprods: [],
         labels: {
-            selectprods: Resource.msg('modal.header.selectproducts', 'product', null),
-            close: Resource.msg('link.choiceofbonus.close', 'product', null)
+            selectprods: Resource.msg(
+                "modal.header.selectproducts",
+                "product",
+                null
+            ),
+            close: Resource.msg("link.choiceofbonus.close", "product", null),
         },
-        showProductsUrlRuleBased: URLUtils.url('Product-ShowBonusProducts', 'DUUID', bonusDiscountLineItem.UUID, 'pagesize', cartHelper.BONUS_PRODUCTS_PAGE_SIZE, 'pagestart', 0, 'maxpids', bonusDiscountLineItem.maxBonusItems).toString(),
-        showProductsUrlListBased: URLUtils.url('Product-ShowBonusProducts', 'DUUID', bonusDiscountLineItem.UUID, 'pids', pids, 'maxpids', bonusDiscountLineItem.maxBonusItems).toString()
+        showProductsUrlRuleBased: URLUtils.url(
+            "Product-ShowBonusProducts",
+            "DUUID",
+            bonusDiscountLineItem.UUID,
+            "pagesize",
+            cartHelper.BONUS_PRODUCTS_PAGE_SIZE,
+            "pagestart",
+            0,
+            "maxpids",
+            bonusDiscountLineItem.maxBonusItems
+        ).toString(),
+        showProductsUrlListBased: URLUtils.url(
+            "Product-ShowBonusProducts",
+            "DUUID",
+            bonusDiscountLineItem.UUID,
+            "pids",
+            pids,
+            "maxpids",
+            bonusDiscountLineItem.maxBonusItems
+        ).toString(),
     });
     next();
 });
@@ -857,19 +998,22 @@ server.get('EditBonusProduct', function (req, res, next) {
  * @param {returns} - json
  * @param {serverfunction} - get
  */
-server.get('GetProduct', function (req, res, next) {
-    var BasketMgr = require('dw/order/BasketMgr');
-    var Resource = require('dw/web/Resource');
-    var URLUtils = require('dw/web/URLUtils');
-    var collections = require('*/cartridge/scripts/util/collections');
-    var ProductFactory = require('*/cartridge/scripts/factories/product');
-    var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
+server.get("GetProduct", function (req, res, next) {
+    var BasketMgr = require("dw/order/BasketMgr");
+    var Resource = require("dw/web/Resource");
+    var URLUtils = require("dw/web/URLUtils");
+    var collections = require("*/cartridge/scripts/util/collections");
+    var ProductFactory = require("*/cartridge/scripts/factories/product");
+    var renderTemplateHelper = require("*/cartridge/scripts/renderTemplateHelper");
 
     var requestUuid = req.querystring.uuid;
 
-    var requestPLI = collections.find(BasketMgr.getCurrentBasket().allProductLineItems, function (item) {
-        return item.UUID === requestUuid;
-    });
+    var requestPLI = collections.find(
+        BasketMgr.getCurrentBasket().allProductLineItems,
+        function (item) {
+            return item.UUID === requestUuid;
+        }
+    );
 
     var requestQuantity = requestPLI.quantityValue.toString();
 
@@ -880,13 +1024,19 @@ server.get('GetProduct', function (req, res, next) {
     if (optionProductLineItems && optionProductLineItems.length) {
         var optionProductLineItem = optionProductLineItems.iterator().next();
         selectedOptionValueId = optionProductLineItem.optionValueID;
-        selectedOptions = [{ optionId: optionProductLineItem.optionID, selectedValueId: optionProductLineItem.optionValueID, productId: requestPLI.productID }];
+        selectedOptions = [
+            {
+                optionId: optionProductLineItem.optionID,
+                selectedValueId: optionProductLineItem.optionValueID,
+                productId: requestPLI.productID,
+            },
+        ];
     }
 
     var pliProduct = {
         pid: requestPLI.productID,
         quantity: requestQuantity,
-        options: selectedOptions
+        options: selectedOptions,
     };
 
     var context = {
@@ -894,19 +1044,27 @@ server.get('GetProduct', function (req, res, next) {
         selectedQuantity: requestQuantity,
         selectedOptionValueId: selectedOptionValueId,
         uuid: requestUuid,
-        updateCartUrl: URLUtils.url('Cart-EditProductLineItem'),
-        closeButtonText: Resource.msg('link.editProduct.close', 'cart', null),
-        enterDialogMessage: Resource.msg('msg.enter.edit.product', 'cart', null),
-        template: 'product/quickView.isml'
+        updateCartUrl: URLUtils.url("Cart-EditProductLineItem"),
+        closeButtonText: Resource.msg("link.editProduct.close", "cart", null),
+        enterDialogMessage: Resource.msg(
+            "msg.enter.edit.product",
+            "cart",
+            null
+        ),
+        template: "product/quickView.isml",
     };
 
     res.setViewData(context);
 
-    this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+    this.on("route:BeforeComplete", function (req, res) {
+        // eslint-disable-line no-shadow
         var viewData = res.getViewData();
 
         res.json({
-            renderedTemplate: renderTemplateHelper.getRenderedHtml(viewData, viewData.template)
+            renderedTemplate: renderTemplateHelper.getRenderedHtml(
+                viewData,
+                viewData.template
+            ),
         });
     });
 
@@ -926,18 +1084,18 @@ server.get('GetProduct', function (req, res, next) {
  * @param {returns} - json
  * @param {serverfunction} - post
  */
-server.post('EditProductLineItem', function (req, res, next) {
-    var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
-    var arrayHelper = require('*/cartridge/scripts/util/array');
-    var BasketMgr = require('dw/order/BasketMgr');
-    var ProductMgr = require('dw/catalog/ProductMgr');
-    var Resource = require('dw/web/Resource');
-    var URLUtils = require('dw/web/URLUtils');
-    var Transaction = require('dw/system/Transaction');
-    var CartModel = require('*/cartridge/models/cart');
-    var collections = require('*/cartridge/scripts/util/collections');
-    var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+server.post("EditProductLineItem", function (req, res, next) {
+    var renderTemplateHelper = require("*/cartridge/scripts/renderTemplateHelper");
+    var arrayHelper = require("*/cartridge/scripts/util/array");
+    var BasketMgr = require("dw/order/BasketMgr");
+    var ProductMgr = require("dw/catalog/ProductMgr");
+    var Resource = require("dw/web/Resource");
+    var URLUtils = require("dw/web/URLUtils");
+    var Transaction = require("dw/system/Transaction");
+    var CartModel = require("*/cartridge/models/cart");
+    var collections = require("*/cartridge/scripts/util/collections");
+    var cartHelper = require("*/cartridge/scripts/cart/cartHelpers");
+    var basketCalculationHelpers = require("*/cartridge/scripts/helpers/basketCalculationHelpers");
 
     var currentBasket = BasketMgr.getCurrentBasket();
 
@@ -945,7 +1103,7 @@ server.post('EditProductLineItem', function (req, res, next) {
         res.setStatusCode(500);
         res.json({
             error: true,
-            redirectUrl: URLUtils.url('Cart-Show').toString()
+            redirectUrl: URLUtils.url("Cart-Show").toString(),
         });
         return next();
     }
@@ -962,15 +1120,18 @@ server.post('EditProductLineItem', function (req, res, next) {
 
     var uuidToBeDeleted = null;
     var pliToBeDeleted;
-    var newPidAlreadyExist = collections.find(productLineItems, function (item) {
-        if (item.productID === productId && item.UUID !== uuid) {
-            uuidToBeDeleted = item.UUID;
-            pliToBeDeleted = item;
-            updateQuantity += parseInt(item.quantity, 10);
-            return true;
+    var newPidAlreadyExist = collections.find(
+        productLineItems,
+        function (item) {
+            if (item.productID === productId && item.UUID !== uuid) {
+                uuidToBeDeleted = item.UUID;
+                pliToBeDeleted = item;
+                updateQuantity += parseInt(item.quantity, 10);
+                return true;
+            }
+            return false;
         }
-        return false;
-    });
+    );
 
     var availableToSell = 0;
     var totalQtyRequested = 0;
@@ -984,23 +1145,34 @@ server.post('EditProductLineItem', function (req, res, next) {
         if (requestLineItem.product.bundle) {
             bundleItems = requestLineItem.bundledProductLineItems;
             canBeUpdated = collections.every(bundleItems, function (item) {
-                var quantityToUpdate = updateQuantity *
-                    requestLineItem.product.getBundledProductQuantity(item.product).value;
+                var quantityToUpdate =
+                    updateQuantity *
+                    requestLineItem.product.getBundledProductQuantity(
+                        item.product
+                    ).value;
                 qtyAlreadyInCart = cartHelper.getQtyAlreadyInCart(
                     item.productID,
                     productLineItems,
                     item.UUID
                 );
                 totalQtyRequested = quantityToUpdate + qtyAlreadyInCart;
-                availableToSell = item.product.availabilityModel.inventoryRecord.ATS.value;
-                perpetual = item.product.availabilityModel.inventoryRecord.perpetual;
+                availableToSell =
+                    item.product.availabilityModel.inventoryRecord.ATS.value;
+                perpetual =
+                    item.product.availabilityModel.inventoryRecord.perpetual;
                 minOrderQuantity = item.product.minOrderQuantity.value;
-                return (totalQtyRequested <= availableToSell || perpetual) &&
-                    (quantityToUpdate >= minOrderQuantity);
+                return (
+                    (totalQtyRequested <= availableToSell || perpetual) &&
+                    quantityToUpdate >= minOrderQuantity
+                );
             });
         } else {
-            availableToSell = requestLineItem.product.availabilityModel.inventoryRecord.ATS.value;
-            perpetual = requestLineItem.product.availabilityModel.inventoryRecord.perpetual;
+            availableToSell =
+                requestLineItem.product.availabilityModel.inventoryRecord.ATS
+                    .value;
+            perpetual =
+                requestLineItem.product.availabilityModel.inventoryRecord
+                    .perpetual;
             qtyAlreadyInCart = cartHelper.getQtyAlreadyInCart(
                 productId,
                 productLineItems,
@@ -1008,8 +1180,9 @@ server.post('EditProductLineItem', function (req, res, next) {
             );
             totalQtyRequested = updateQuantity + qtyAlreadyInCart;
             minOrderQuantity = requestLineItem.product.minOrderQuantity.value;
-            canBeUpdated = (totalQtyRequested <= availableToSell || perpetual) &&
-                (updateQuantity >= minOrderQuantity);
+            canBeUpdated =
+                (totalQtyRequested <= availableToSell || perpetual) &&
+                updateQuantity >= minOrderQuantity;
         }
     }
 
@@ -1021,7 +1194,10 @@ server.post('EditProductLineItem', function (req, res, next) {
                 if (newPidAlreadyExist) {
                     var shipmentToRemove = pliToBeDeleted.shipment;
                     currentBasket.removeProductLineItem(pliToBeDeleted);
-                    if (shipmentToRemove.productLineItems.empty && !shipmentToRemove.default) {
+                    if (
+                        shipmentToRemove.productLineItems.empty &&
+                        !shipmentToRemove.default
+                    ) {
                         currentBasket.removeShipment(shipmentToRemove);
                     }
                 }
@@ -1032,11 +1208,21 @@ server.post('EditProductLineItem', function (req, res, next) {
 
                 // If the product has options
                 var optionModel = product.getOptionModel();
-                if (optionModel && optionModel.options && optionModel.options.length) {
+                if (
+                    optionModel &&
+                    optionModel.options &&
+                    optionModel.options.length
+                ) {
                     var productOption = optionModel.options.iterator().next();
-                    var productOptionValue = optionModel.getOptionValue(productOption, selectedOptionValueId);
-                    var optionProductLineItems = requestLineItem.getOptionProductLineItems();
-                    var optionProductLineItem = optionProductLineItems.iterator().next();
+                    var productOptionValue = optionModel.getOptionValue(
+                        productOption,
+                        selectedOptionValueId
+                    );
+                    var optionProductLineItems =
+                        requestLineItem.getOptionProductLineItems();
+                    var optionProductLineItem = optionProductLineItems
+                        .iterator()
+                        .next();
                     optionProductLineItem.updateOptionValue(productOptionValue);
                 }
 
@@ -1053,7 +1239,7 @@ server.post('EditProductLineItem', function (req, res, next) {
 
         var responseObject = {
             cartModel: cartModel,
-            newProductId: productId
+            newProductId: productId,
         };
 
         if (uuidToBeDeleted) {
@@ -1064,8 +1250,11 @@ server.post('EditProductLineItem', function (req, res, next) {
             return item.UUID === uuid;
         });
 
-        var productCardContext = { lineItem: cartItem, actionUrls: cartModel.actionUrls };
-        var productCardTemplate = 'cart/productCard/cartProductCardServer.isml';
+        var productCardContext = {
+            lineItem: cartItem,
+            actionUrls: cartModel.actionUrls,
+        };
+        var productCardTemplate = "cart/productCard/cartProductCardServer.isml";
 
         responseObject.renderedTemplate = renderTemplateHelper.getRenderedHtml(
             productCardContext,
@@ -1076,7 +1265,11 @@ server.post('EditProductLineItem', function (req, res, next) {
     } else {
         res.setStatusCode(500);
         res.json({
-            errorMessage: Resource.msg('error.cannot.update.product', 'cart', null)
+            errorMessage: Resource.msg(
+                "error.cannot.update.product",
+                "cart",
+                null
+            ),
         });
     }
 
