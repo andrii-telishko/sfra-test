@@ -44,13 +44,28 @@ server.post("Notify", server.middleware.https, function (req, res, next) {
             var productsSet = products.concat(productId);
             customObj.custom.ProductId = productsSet;
         }
-    });
 
-    res.json({
-        success: true,
+        res.json({
+            success: true,
+            redirectUrl: URLUtils.url("NotifyForm-Success").toString(),
+        });
     });
 
     return next();
+});
+
+server.get("Success", server.middleware.https, function (req, res, next) {
+    var ProductMgr = require("dw/catalog/ProductMgr");
+    var NotifyForm = server.forms.getForm("notifyForm");
+
+    var product = ProductMgr.getProduct(NotifyForm.productId.value);
+
+    res.render("/forms/notifySuccess", {
+        NotifyForm: NotifyForm,
+        product: product.name,
+    });
+
+    next();
 });
 
 module.exports = server.exports();
